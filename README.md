@@ -17,7 +17,7 @@ Die **Original-Plan-Datei** in Cursor liegt unter:
 
 1. Basis von **Plan A** ist implementiert unter `app/` (Angular + Three.js + Supabase-Datenservice).
 2. Supabase-Schema inkl. RLS-Policies liegt in `supabase/schema.sql`.
-3. Supabase Keys lokal in `app/src/environments/environment.ts` eintragen (nicht committen).
+3. Supabase Keys lokal in `app/src/environments/environment.local.ts` eintragen. Diese Datei ist im **Repo-Root** per `.gitignore` ausgeschlossen; beim ersten Start legt `npm run prestart` sie bei Bedarf aus `environment.local.example.ts` an. Die App importiert diese Werte **direkt** (kein `fileReplacements` mehr).
 
 ## Lokaler Start
 
