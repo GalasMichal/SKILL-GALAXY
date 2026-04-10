@@ -7,8 +7,8 @@
 
 /* Close: portfolio-galaxy PANEL_CLOSE_CONTENT_HOLD_MS ~= $dur-panel + buffer */
 $ease-out: cubic-bezier(0.25, 0.46, 0.45, 1);
-$dur-backdrop: 270ms;
-$dur-panel: 380ms;
+$dur-backdrop: 280ms;
+$dur-panel: 360ms;
 
 .backdrop {
   position: fixed;
@@ -43,7 +43,7 @@ $dur-panel: 380ms;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 1.5rem 1.65rem;
+  padding: 1.65rem 1.6rem 1.75rem;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -95,34 +95,11 @@ $dur-panel: 380ms;
   display: none;
 }
 
-.panel__debug-test {
-  flex-shrink: 0;
-  margin-bottom: 1rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  border: 1px dashed rgba(255, 255, 255, 0.22);
-  background: rgba(0, 0, 0, 0.35);
-}
-
-.panel__debug-test-title {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(250, 251, 255, 0.95);
-}
-
-.panel__debug-test-selected {
-  margin: 0.45rem 0 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: rgba(210, 216, 232, 0.92);
-}
-
 .panel__header {
   position: relative;
-  padding-bottom: 1.125rem;
-  margin-bottom: 0.05rem;
+  flex-shrink: 0;
+  padding-bottom: 1.2rem;
+  margin-bottom: 0;
   border-bottom: 1px solid var(--panel-border);
 }
 
@@ -130,8 +107,8 @@ $dur-panel: 380ms;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.45rem 0.7rem;
+  margin-bottom: 0.85rem;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.055em;
@@ -168,10 +145,10 @@ $dur-panel: 380ms;
 .panel__title {
   flex: 1;
   margin: 0;
-  font-size: clamp(1.28rem, 2.8vw, 1.55rem);
-  font-weight: 650;
-  line-height: 1.18;
-  letter-spacing: -0.024em;
+  font-size: clamp(1.22rem, 2.6vw, 1.48rem);
+  font-weight: 620;
+  line-height: 1.2;
+  letter-spacing: -0.028em;
 }
 
 .panel__close {
@@ -231,7 +208,7 @@ $dur-panel: 380ms;
 
 .panel__body {
   position: relative;
-  margin-top: 1.35rem;
+  margin-top: 1.25rem;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.35rem;
@@ -251,25 +228,25 @@ $dur-panel: 380ms;
 }
 
 .panel__lede {
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.55;
-  letter-spacing: 0.01em;
-  color: rgba(210, 216, 232, 0.88);
+  margin: 0 0 0.9rem;
+  font-size: 0.84375rem;
+  font-weight: 520;
+  line-height: 1.58;
+  letter-spacing: 0.006em;
+  color: rgba(218, 222, 238, 0.9);
   max-width: 38rem;
 }
 
 .panel__body-text {
-  margin: 0 0 1.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.72;
+  margin: 0 0 1.55rem;
+  font-size: 0.921875rem;
+  line-height: 1.68;
   color: var(--panel-fg-muted);
   max-width: 38rem;
 }
 
 .panel__section {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.5rem;
 }
 
 .panel__section:last-of-type {
@@ -277,12 +254,12 @@ $dur-panel: 380ms;
 }
 
 .panel__label {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.65rem;
   font-size: 0.625rem;
-  font-weight: 650;
-  letter-spacing: 0.16em;
+  font-weight: 620;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(148, 156, 178, 0.5);
+  color: rgba(152, 160, 182, 0.55);
 }
 
 .panel__chips {
@@ -327,9 +304,9 @@ $dur-panel: 380ms;
 .panel__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 0.6rem;
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
+  gap: 0.5rem 0.55rem;
+  margin-top: 0.25rem;
+  padding-top: 1.35rem;
   border-top: 1px solid var(--panel-border);
 }
 
