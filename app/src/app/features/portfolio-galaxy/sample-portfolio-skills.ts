@@ -2,29 +2,30 @@ import type { PortfolioSkill } from './engine/portfolio-skill.model';
 
 /**
  * Portfolio graph + Panel-Copy — ersetzen durch CMS oder eigene URLs.
- * Links mit `href: '#…'` bewusst als Anker; durch echte Ziele ersetzen.
+ * `summary` = Kurzzeile unter dem Titel; `detail.description` = Fließtext.
  */
 export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   {
     id: 'skill-frontend',
     title: 'Frontend & Produktoberflächen',
-    summary: 'Angular, TypeScript, komponentenbasierte Systeme, barrierefreie UI.',
+    summary:
+      'Enterprise-UIs mit Angular und TypeScript — von Design-Tokens bis zu messbar schnellen Builds.',
     accentHex: 0x5b8cff,
     detail: {
       headline: 'Frontend & Interface Architecture',
       description:
-        'Ich baue wartbare Oberflächen für komplexe Domänen: klare Schichtung (Smart/Dumb Components), konsistente Tokens statt Einzelstyles, und Performance, die man in Lighthouse sieht — nicht nur im Desktop-Wide-Screen. Barrierefreiheit ist kein Add-on, sondern Teil der Definition of Done.',
-      techStack: ['Angular (standalone)', 'TypeScript', 'RxJS', 'SCSS', 'Signals', 'Vitest / Jest'],
+        'Schwerpunkte: große Formulare und Datenlisten, die trotzdem ruhig wirken; konsistente Komponentenbibliotheken; und Releases, die nicht an zufälligen Regressionen scheitern. Ich arbeite eng mit UX und Backend zusammen — Schnittstellen (DTOs, Fehlercodes) werden gemeinsam definiert, nicht „irgendwann integriert“.',
+      techStack: ['Angular (standalone)', 'TypeScript', 'RxJS', 'SCSS', 'Signals', 'Karma / Vitest'],
       highlights: [
-        'Feature-basierte Module mit klaren öffentlichen Schnittstellen und Lazy Loading',
-        'Design-Tokens, Typografie-Skala und dokumentierte UI-Patterns für Teams',
-        'Fokus-Management, Tastaturpfade und semantisches Markup für produktive Nutzer'
+        'OnPush, klare Datenflüsse und wenige implizite Seiteneffekte in Komponenten',
+        'Barrierefreiheit: Fokus, ARIA, Tastatur — nicht nur Lighthouse-Werte',
+        'CI-freundliche Tests für kritische Flows statt nur Snapshot-Theater'
       ],
       links: [
-        { label: 'Ausgewählte Arbeiten', href: '#arbeiten', variant: 'primary' },
-        { label: 'Technischer Überblick', href: '#stack', variant: 'secondary' }
+        { label: 'Case: Dashboard-Plattform', href: '#case-dashboard', variant: 'primary' },
+        { label: 'Stack & Prinzipien', href: '#stack-frontend', variant: 'secondary' }
       ],
-      status: 'Projekte & Freelance',
+      status: 'Projektanfragen möglich',
       year: '2019 — heute',
       category: 'Engineering'
     }
@@ -32,23 +33,24 @@ export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   {
     id: 'skill-backend',
     title: 'Backend, Daten & APIs',
-    summary: 'REST- und serviceorientierte Schnittstellen, Postgres, Supabase, saubere Migrationen.',
+    summary:
+      'REST-APIs und Postgres — von Migration bis RLS: Daten, die sich im Team erklären lassen.',
     accentHex: 0x3dd6c6,
     detail: {
-      headline: 'APIs & Datenmodellierung',
+      headline: 'APIs, Schema & Supabase',
       description:
-        'Von der ersten Tabellenstruktur bis zum auslieferungsfähigen Endpoint: explizite Contracts, vorhersehbare Fehlerantworten und Migrationspfade, die man im Team erklären kann. Wo Supabase passt, nutze ich Auth, RLS und Edge Functions gezielt — ohne die Datenbank zur „Black Box“ zu machen.',
+        'Ich plane Schnittstellen so, dass Frontend und externe Clients vorhersehbare Antworten bekommen: einheitliche Fehlerstruktur, sinnvolle Statuscodes, Versionierung wo nötig. Bei Supabase setze ich auf durchdachte Policies und wenige „magic“ Triggers — lieber explizite Domänenlogik, die man im Code reviewen kann.',
       techStack: ['Node.js', 'REST', 'Postgres', 'Supabase', 'SQL', 'OpenAPI'],
       highlights: [
-        'Normalisierte Schemas mit sinnvollen Constraints und erklärbaren Indizes',
-        'Row Level Security und Policies, die sich an Produktrollen orientieren',
-        'Observability: strukturierte Logs und nachvollziehbare Fehlercodes für Clients'
+        'Migrations als Vertrag: abwärtskompatibel, wo das Produkt es verlangt',
+        'RLS und Rollenmodell abgestimmt auf echte Nutzergruppen, nicht Demo-Policies',
+        'Monitoring-Hooks: Logs und Metriken, die bei Incidents helfen statt nur Lärm zu erzeugen'
       ],
       links: [
-        { label: 'Architektur-Notizen', href: '#backend', variant: 'primary' },
+        { label: 'Architektur-Skizzen', href: '#architektur-backend', variant: 'primary' },
         { label: 'Kontakt', href: '#kontakt', variant: 'ghost' }
       ],
-      status: 'Verfügbar für Beratung',
+      status: 'Beratung & Umsetzung',
       year: '2020 — heute',
       category: 'Platform'
     }
@@ -56,23 +58,24 @@ export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   {
     id: 'skill-creative',
     title: 'Echtzeit-3D & Experience',
-    summary: 'Three.js, WebGL, ruhige Kamera- und Fokusführung im Browser.',
+    summary:
+      'WebGL-Portfolio mit Three.js — Fokus, Licht und Timing statt Effekt-Überladung.',
     accentHex: 0xc77dff,
     detail: {
-      headline: 'Skill Galaxy — Portfolio-Experience',
+      headline: 'Skill Galaxy — diese Experience',
       description:
-        'Diese Szene ist bewusst zurückhaltend: Fokus statt Effektgewitter, weiche Kamerafahrten und Lesbarkeit vor Shader-Show. Technisch: modulare Engine-Schicht (Szene, Kamera, Interaktion, Post), deterministische Visuals und ein Panel, das mit dem Fokuszustand der Kugeln gekoppelt ist — kein losgelöstes Modal.',
-      techStack: ['Three.js', 'WebGL', 'Angular', 'TypeScript', 'Post-processing'],
+        'Die Szene ist als interaktive Visitenkarte gedacht: eine ruhige Welt, in der drei Kompetenzbereiche lesbar bleiben. Technisch steckt dahinter eine kleine Engine-Schicht (Experience, World, Interaction, Post), die sich von klassischen „alles in einer Komponente“-Demos abgrenzt. Das Panel ist an den Fokuszustand der Kugeln gekoppelt — Kamera-Pre-Roll und Panel erscheinen im gleichen Takt.',
+      techStack: ['Three.js r183', 'WebGL', 'Angular 21', 'TypeScript', 'postprocessing'],
       highlights: [
-        'Kamera mit Pre-Roll und langsamer Ease — orientiert an Film statt an „Snap Zoom“',
-        'Skill-Nodes mit klarer visueller Hierarchie (Hero vs. Support) ohne Comic-Look',
-        'Detail-Panel als festes UX-Element: gleiche Timings wie Rückkehr der Kamera'
+        'Kamerafahrt mit Pre-Roll und langsamer Ease — bewusst „kinematisch“, nicht twitchy',
+        'Hero-Orb mit Material-Stack; Support-Orbs bewusst zurückhaltender',
+        'Detail-Panel: Desktop-Sheet rechts, kompaktes Bottom-Sheet auf schmalen Viewports'
       ],
       links: [
-        { label: 'Zu diesem Build', href: '#galaxy', variant: 'primary' },
-        { label: 'Quellcode (Repo)', href: '#repo', variant: 'secondary' }
+        { label: 'Über dieses Projekt', href: '#galaxy-about', variant: 'primary' },
+        { label: 'Repo / Quellcode', href: '#galaxy-repo', variant: 'secondary' }
       ],
-      status: 'Showcase',
+      status: 'Live-Showcase',
       year: '2026',
       category: 'Interactive'
     }
