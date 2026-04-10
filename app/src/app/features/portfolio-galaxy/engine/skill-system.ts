@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { PortfolioSkill } from './portfolio-skill.model';
 import { SkillNodeVisual } from './skill-node';
+import { SAMPLE_PORTFOLIO_SKILLS } from '../sample-portfolio-skills';
 
 /** Default triangle layout — three prominent skill orbs */
 const DEFAULT_POSITIONS: THREE.Vector3[] = [
@@ -121,24 +122,5 @@ export class SkillSystem {
 
 /** Placeholder content — replace with CMS / API */
 export function createPlaceholderSkills(): PortfolioSkill[] {
-  return [
-    {
-      id: 'skill-frontend',
-      title: 'Frontend Engineering',
-      summary: 'Angular, TypeScript, WebGL, design systems.',
-      accentHex: 0x5b8cff
-    },
-    {
-      id: 'skill-backend',
-      title: 'Backend & APIs',
-      summary: 'REST, Postgres, services, performance.',
-      accentHex: 0x3dd6c6
-    },
-    {
-      id: 'skill-creative',
-      title: 'Real-time Graphics',
-      summary: 'Three.js, shaders, cinematic UX.',
-      accentHex: 0xc77dff
-    }
-  ];
+  return SAMPLE_PORTFOLIO_SKILLS;
 }
