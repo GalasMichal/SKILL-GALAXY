@@ -1,83 +1,82 @@
 import type { PortfolioSkill } from './engine/portfolio-skill.model';
 
 /**
- * Portfolio graph + Panel-Copy — ersetzen durch CMS oder eigene URLs.
- * `summary` = Kurzzeile unter dem Titel; `detail.description` = Fließtext.
+ * Demo portfolio payloads for the three orbs — replace with CMS or static data as needed.
  */
 export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   {
     id: 'skill-frontend',
-    title: 'Frontend & Produktoberflächen',
+    title: 'Atlas Console',
     summary:
-      'Enterprise-UIs mit Angular und TypeScript — von Design-Tokens bis zu messbar schnellen Builds.',
+      'Angular operations console for a logistics network: dense tables, fast filters, and zero ambiguity in handover states.',
     accentHex: 0x5b8cff,
     detail: {
-      headline: 'Frontend & Interface Architecture',
+      headline: 'Atlas — control room for live operations',
       description:
-        'Schwerpunkte: große Formulare und Datenlisten, die trotzdem ruhig wirken; konsistente Komponentenbibliotheken; und Releases, die nicht an zufälligen Regressionen scheitern. Ich arbeite eng mit UX und Backend zusammen — Schnittstellen (DTOs, Fehlercodes) werden gemeinsam definiert, nicht „irgendwann integriert“.',
-      techStack: ['Angular (standalone)', 'TypeScript', 'RxJS', 'SCSS', 'Signals', 'Karma / Vitest'],
+        'Atlas is the internal console teams use when a shipment is stuck between hubs. The UI prioritizes scanability: frozen header grids, keyboard-first filters, and optimistic saves that roll back with a clear audit trail. Work was shaped with operations managers — every screen maps to a real escalation, not a generic CRUD demo.',
+      techStack: ['Angular (standalone)', 'TypeScript', 'RxJS', 'SCSS', 'NgRx SignalStore', 'Playwright'],
       highlights: [
-        'OnPush, klare Datenflüsse und wenige implizite Seiteneffekte in Komponenten',
-        'Barrierefreiheit: Fokus, ARIA, Tastatur — nicht nur Lighthouse-Werte',
-        'CI-freundliche Tests für kritische Flows statt nur Snapshot-Theater'
+        'Virtualized grids with stable row identity across websocket refreshes',
+        'Role-aware columns and exports without forking the codebase per tenant',
+        'Accessibility baked in: focus order matches the triage workflow, not the DOM order'
       ],
       links: [
-        { label: 'Case: Dashboard-Plattform', href: '#case-dashboard', variant: 'primary' },
-        { label: 'Stack & Prinzipien', href: '#stack-frontend', variant: 'secondary' }
+        { label: 'Architecture notes', href: '#atlas-architecture', variant: 'primary' },
+        { label: 'UI kit constraints', href: '#atlas-design-system', variant: 'secondary' }
       ],
-      status: 'Projektanfragen möglich',
-      year: '2019 — heute',
-      category: 'Engineering'
+      status: 'Production',
+      year: '2023 — 2025',
+      category: 'Product engineering'
     }
   },
   {
     id: 'skill-backend',
-    title: 'Backend, Daten & APIs',
+    title: 'Harbor API',
     summary:
-      'REST-APIs und Postgres — von Migration bis RLS: Daten, die sich im Team erklären lassen.',
+      'Postgres-first billing and entitlements API: idempotent webhooks, explicit migrations, and RLS that matches finance review.',
     accentHex: 0x3dd6c6,
     detail: {
-      headline: 'APIs, Schema & Supabase',
+      headline: 'Harbor — subscriptions without mystery state',
       description:
-        'Ich plane Schnittstellen so, dass Frontend und externe Clients vorhersehbare Antworten bekommen: einheitliche Fehlerstruktur, sinnvolle Statuscodes, Versionierung wo nötig. Bei Supabase setze ich auf durchdachte Policies und wenige „magic“ Triggers — lieber explizite Domänenlogik, die man im Code reviewen kann.',
-      techStack: ['Node.js', 'REST', 'Postgres', 'Supabase', 'SQL', 'OpenAPI'],
+        'Harbor powers plan changes, credits, and dunning for a B2B SaaS pilot. The service exposes a small surface of REST endpoints backed by strict SQL invariants: invoice rows are append-only, webhook deliveries are retryable with idempotency keys, and every policy was written so a security review can trace tenant isolation in one pass.',
+      techStack: ['Node.js', 'PostgreSQL', 'Supabase', 'SQL migrations', 'OpenAPI 3.1', 'Stripe webhooks'],
       highlights: [
-        'Migrations als Vertrag: abwärtskompatibel, wo das Produkt es verlangt',
-        'RLS und Rollenmodell abgestimmt auf echte Nutzergruppen, nicht Demo-Policies',
-        'Monitoring-Hooks: Logs und Metriken, die bei Incidents helfen statt nur Lärm zu erzeugen'
+        'Row-level security aligned to organization membership, not example templates',
+        'Schema diffs reviewed like code: backward-compatible phases for long-lived mobile clients',
+        'Observability tied to business events — failed renewals surface before finance pings engineering'
       ],
       links: [
-        { label: 'Architektur-Skizzen', href: '#architektur-backend', variant: 'primary' },
-        { label: 'Kontakt', href: '#kontakt', variant: 'ghost' }
+        { label: 'API reference', href: '#harbor-openapi', variant: 'primary' },
+        { label: 'Data model', href: '#harbor-schema', variant: 'ghost' }
       ],
-      status: 'Beratung & Umsetzung',
-      year: '2020 — heute',
-      category: 'Platform'
+      status: 'Pilot rollout',
+      year: '2024 — 2025',
+      category: 'Platform & data'
     }
   },
   {
     id: 'skill-creative',
-    title: 'Echtzeit-3D & Experience',
+    title: 'Nebula Gallery',
     summary:
-      'WebGL-Portfolio mit Three.js — Fokus, Licht und Timing statt Effekt-Überladung.',
+      'WebGL exhibition space for a photography collective: slow camera language, print-grade color, and no shader gimmicks.',
     accentHex: 0xc77dff,
     detail: {
-      headline: 'Skill Galaxy — diese Experience',
+      headline: 'Nebula — quiet room for large images',
       description:
-        'Die Szene ist als interaktive Visitenkarte gedacht: eine ruhige Welt, in der drei Kompetenzbereiche lesbar bleiben. Technisch steckt dahinter eine kleine Engine-Schicht (Experience, World, Interaction, Post), die sich von klassischen „alles in einer Komponente“-Demos abgrenzt. Das Panel ist an den Fokuszustand der Kugeln gekoppelt — Kamera-Pre-Roll und Panel erscheinen im gleichen Takt.',
-      techStack: ['Three.js r183', 'WebGL', 'Angular 21', 'TypeScript', 'postprocessing'],
+        'Nebula is a browser-based gallery built for a small collective showing large-format work online. Motion is restrained: easing matches physical inertia, lights are stable, and transitions never compete with the prints. The scene graph is organized so curators can swap sequences without touching shader code — layout and pacing stay intentional.',
+      techStack: ['Three.js', 'WebGL2', 'glTF', 'Angular', 'TypeScript', 'ACES tone mapping'],
       highlights: [
-        'Kamerafahrt mit Pre-Roll und langsamer Ease — bewusst „kinematisch“, nicht twitchy',
-        'Hero-Orb mit Material-Stack; Support-Orbs bewusst zurückhaltender',
-        'Detail-Panel: Desktop-Sheet rechts, kompaktes Bottom-Sheet auf schmalen Viewports'
+        'HDR-friendly pipeline with controlled exposure — no blown highlights on wide gamut displays',
+        'Input model that respects trackpads, drag inertia, and reduced-motion preferences',
+        'Asset streaming tuned for museum Wi‑Fi: progressive LOD without pop-in on the hero wall'
       ],
       links: [
-        { label: 'Über dieses Projekt', href: '#galaxy-about', variant: 'primary' },
-        { label: 'Repo / Quellcode', href: '#galaxy-repo', variant: 'secondary' }
+        { label: 'Curatorial walkthrough', href: '#nebula-walkthrough', variant: 'primary' },
+        { label: 'Technical rider', href: '#nebula-rider', variant: 'secondary' }
       ],
-      status: 'Live-Showcase',
-      year: '2026',
-      category: 'Interactive'
+      status: 'Exhibition build',
+      year: '2025',
+      category: 'Spatial / WebGL'
     }
   }
 ];
