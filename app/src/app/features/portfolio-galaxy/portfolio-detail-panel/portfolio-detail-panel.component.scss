@@ -9,14 +9,14 @@
 /* Close: portfolio-galaxy PANEL_CLOSE_CONTENT_HOLD_MS ~= $dur-panel + buffer */
 $ease-out: cubic-bezier(0.25, 0.46, 0.45, 1);
 $ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
-$dur-backdrop: 280ms;
+$dur-backdrop: 300ms;
 $dur-panel: 420ms;
 
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 100000;
-  background: rgba(3, 5, 12, 0.38);
+  background: rgba(2, 4, 10, 0.44);
   opacity: 0;
   pointer-events: none;
   transition: opacity $dur-backdrop $ease-out;
@@ -68,8 +68,10 @@ $dur-panel: 420ms;
   );
   border-left: 1px solid var(--panel-border);
   box-shadow:
-    -32px 0 96px rgba(0, 0, 0, 0.5),
-    inset 1px 0 0 rgba(255, 255, 255, 0.035);
+    -40px 0 140px rgba(0, 0, 0, 0.52),
+    -16px 0 56px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 1px 0 0 rgba(255, 255, 255, 0.042);
   transform: translate3d(calc(100% + 10px), 0, 0) scale(0.98);
   opacity: 0;
   pointer-events: none;
@@ -104,7 +106,7 @@ $dur-panel: 420ms;
 .panel__header {
   position: relative;
   flex-shrink: 0;
-  padding-bottom: 1.35rem;
+  padding-bottom: 1.5rem;
   margin-bottom: 0;
   border-bottom: 1px solid var(--panel-divider);
 }
@@ -216,7 +218,7 @@ $dur-panel: 420ms;
 
 .panel__body {
   position: relative;
-  margin-top: 1.5rem;
+  margin-top: 1.7rem;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.45rem;
@@ -236,7 +238,7 @@ $dur-panel: 420ms;
 }
 
 .panel__lede {
-  margin: 0 0 1rem;
+  margin: 0 0 1.2rem;
   font-size: 0.875rem;
   font-weight: 560;
   line-height: 1.55;
@@ -254,17 +256,17 @@ $dur-panel: 420ms;
 }
 
 .panel__section {
-  margin-top: 1.65rem;
-  padding-top: 1.65rem;
+  margin-top: 1.85rem;
+  padding-top: 1.85rem;
   border-top: 1px solid var(--panel-divider);
 }
 
 .panel__section:first-of-type {
-  margin-top: 1.75rem;
+  margin-top: 2rem;
 }
 
 .panel__label {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
   font-size: 0.625rem;
   font-weight: 650;
   letter-spacing: 0.15em;
@@ -336,8 +338,8 @@ $dur-panel: 420ms;
   flex-wrap: wrap;
   gap: 0.55rem 0.65rem;
   align-items: center;
-  margin-top: 1.65rem;
-  padding-top: 1.5rem;
+  margin-top: 1.85rem;
+  padding-top: 1.65rem;
   border-top: 1px solid var(--panel-divider);
 }
 
@@ -434,7 +436,9 @@ $dur-panel: 420ms;
     padding: 0.35rem 1.35rem calc(1.35rem + env(safe-area-inset-bottom, 0));
     transform: translate3d(0, calc(100% + 14px), 0) scale(0.98);
     box-shadow:
-      0 -28px 100px rgba(0, 0, 0, 0.58),
+      0 -32px 120px rgba(0, 0, 0, 0.6),
+      0 -8px 40px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.045),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
