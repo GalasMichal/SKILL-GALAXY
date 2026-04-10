@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #05070d;
+  color: #edf2ff;
+  font-family: Inter, Segoe UI, sans-serif;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.intro h1 {
+  margin: 0 0 0.5rem;
+}
+
+.intro p {
+  margin: 0;
+  color: #bac3db;
+}
+
+.content {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1rem;
+}
+
+.canvas {
+  border: 1px solid #20263a;
+  border-radius: 0.75rem;
+  min-height: 560px;
+  overflow: hidden;
+}
+
+.panel {
+  border: 1px solid #20263a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #0b1020;
+}
+
+.panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.panel li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.panel small {
+  color: #9ca7c9;
+}
+
+@media (max-width: 980px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .canvas {
+    min-height: 420px;
+  }
+}

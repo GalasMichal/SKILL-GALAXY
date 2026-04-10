@@ -1,0 +1,25 @@
+<main class="page">
+  <section class="intro">
+    <h1>Skill Galaxy</h1>
+    <p>
+      Plan A als MVP: 3D-Skill-Netzwerk mit Angular, Three.js und Supabase.
+      Ohne konfigurierte Supabase-Keys werden lokale Seed-Daten angezeigt.
+    </p>
+  </section>
+
+  <section class="content">
+    <div #canvasHost class="canvas"></div>
+
+    <aside class="panel">
+      <h2>Skills</h2>
+      <ul>
+        @for (node of graph.nodes; track node.id) {
+          <li>
+            <span>{{ node.label }}</span>
+            <small>{{ node.category }} · Level {{ node.level }}</small>
+          </li>
+        }
+      </ul>
+    </aside>
+  </section>
+</main>
