@@ -9,6 +9,10 @@ type DbNode = {
   slug: string;
   label: string;
   category: SkillNode['category'];
+  description?: string;
+  difficulty?: number;
+  xp?: number;
+  tags?: string[];
   level: number;
   position: { x: number; y: number; z: number };
 };
@@ -27,8 +31,11 @@ export class SkillGraphService {
       ? createClient(environment.supabaseUrl, environment.supabaseAnonKey)
       : null;
 
+  public dataSource: 'supabase' | 'sample' = 'sample';
+
   async getGraph(): Promise<SkillGraph> {
     if (!this.supabase) {
+      this.dataSource = 'sample';
       return SAMPLE_GRAPH;
     }
 
@@ -38,6 +45,13 @@ export class SkillGraphService {
     ]);
 
     if (nodesResult.error || edgesResult.error || !nodesResult.data || !edgesResult.data) {
+      if (nodesResult.error) {
+        console.warn('[SkillGraph] nodes query failed:', nodesResult.error.message);
+      }
+      if (edgesResult.error) {
+        console.warn('[SkillGraph] edges query failed:', edgesResult.error.message);
+      }
+      this.dataSource = 'sample';
       return SAMPLE_GRAPH;
     }
 
@@ -46,6 +60,10 @@ export class SkillGraphService {
       slug: node.slug,
       label: node.label,
       category: node.category ?? 'other',
+      description: node.description,
+      difficulty: node.difficulty,
+      xp: node.xp,
+      tags: node.tags,
       level: node.level,
       x: node.position?.x ?? 0,
       y: node.position?.y ?? 0,
@@ -59,6 +77,7 @@ export class SkillGraphService {
       relation: edge.relation
     }));
 
+    this.dataSource = 'supabase';
     return { nodes, edges };
   }
 }

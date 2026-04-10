@@ -3,6 +3,11 @@ export interface SkillNode {
   slug: string;
   label: string;
   category: 'frontend' | 'backend' | 'devops' | 'softskill' | 'other';
+  description?: string;
+  /** Optional game / portfolio metadata */
+  difficulty?: number;
+  xp?: number;
+  tags?: string[];
   level: number;
   x: number;
   y: number;
