@@ -1,1 +1,8 @@
-<div class="portfolio-galaxy" #host aria-label="Skill galaxy portfolio scene"></div>
+<div class="portfolio-root">
+  <div class="portfolio-galaxy" #host aria-label="Skill galaxy portfolio scene"></div>
+  <app-portfolio-detail-panel
+    [open]="panelOpen"
+    [model]="displayModel"
+    (dismiss)="onPanelDismiss()"
+  />
+</div>

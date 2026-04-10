@@ -11,6 +11,8 @@ import { SceneManager } from './scene-manager';
 import { World } from './world';
 import type { PortfolioSkill } from './portfolio-skill.model';
 
+export type SkillFocusCallback = (skillId: string | null) => void;
+
 function smoothToward(current: number, goal: number, delta: number, lambda: number): number {
   const t = 1 - Math.exp(-lambda * delta);
   return current + (goal - current) * t;
@@ -35,11 +37,13 @@ export class Experience {
   private disposed = false;
   /** Smoothed 0..1 driven by orb focus — stages background, fog, and fill lights */
   private focusPresentationBlend = 0;
+  private lastNotifiedFocusId: string | null = null;
 
   constructor(
     private readonly host: HTMLElement,
     skills?: PortfolioSkill[],
-    private readonly onSkillHover: SkillHoverCallback = () => {}
+    private readonly onSkillHover: SkillHoverCallback = () => {},
+    private readonly onSkillFocus: SkillFocusCallback = () => {}
   ) {
     this.sceneManager = new SceneManager();
     this.cameraManager = new CameraManager();
@@ -98,12 +102,33 @@ export class Experience {
     this.focus?.update(delta);
     this.controls?.update();
 
-    const focusGoal = this.world.skillSystem.getFocusedSkillId() !== null ? 1 : 0;
+    const fid = this.world.skillSystem.getFocusedSkillId();
+    const focusGoal = fid !== null ? 1 : 0;
     this.focusPresentationBlend = smoothToward(this.focusPresentationBlend, focusGoal, delta, 2.35);
     this.sceneManager.applyFocusPresentationBlend(this.focusPresentationBlend);
     this.world.applyFocusPresentationBlend(this.focusPresentationBlend);
 
+    this.emitFocusIfChanged(fid);
+
     this.post?.render();
+  }
+
+  private emitFocusIfChanged(fid: string | null): void {
+    if (fid === this.lastNotifiedFocusId) {
+      return;
+    }
+    this.lastNotifiedFocusId = fid;
+    this.onSkillFocus(fid);
+  }
+
+  /** Clears orb focus and returns the camera — same as void-click in the scene. */
+  clearSkillFocus(): void {
+    if (this.disposed) {
+      return;
+    }
+    this.world.skillSystem.setFocusedSkill(null);
+    this.focus?.returnToDefaultFraming();
+    this.emitFocusIfChanged(this.world.skillSystem.getFocusedSkillId());
   }
 
   dispose(): void {
