@@ -1,6 +1,6 @@
 <div
   class="backdrop"
-  [class.backdrop--open]="open() && showBackdrop()"
+  [class.backdrop--open]="open()"
   (click)="onBackdropClick($event)"
   aria-hidden="true"
 ></div>
@@ -16,10 +16,6 @@
   aria-labelledby="portfolio-panel-title"
 >
   <div class="panel__handle" aria-hidden="true"></div>
-  <div class="panel__debug-test">
-    <div class="panel__debug-test-title">TEST PANEL</div>
-    <p class="panel__debug-test-selected">Selected: {{ model()?.title ?? '—' }}</p>
-  </div>
   @if (model(); as m) {
     <header class="panel__header">
       <div class="panel__meta">
@@ -35,7 +31,7 @@
       </div>
       <div class="panel__title-row">
         <h2 id="portfolio-panel-title" class="panel__title">{{ m.title }}</h2>
-        <button type="button" class="panel__close" (click)="dismiss.emit()" aria-label="Detailpanel schließen">
+        <button type="button" class="panel__close" (click)="dismiss.emit()" aria-label="Close panel">
           <span class="panel__close-icon" aria-hidden="true"></span>
         </button>
       </div>
@@ -49,7 +45,7 @@
 
       @if (m.techStack.length) {
         <div class="panel__section">
-          <h3 class="panel__label">Tech-Stack</h3>
+          <h3 class="panel__label">Tech stack</h3>
           <ul class="panel__chips">
             @for (t of m.techStack; track t) {
               <li class="panel__chip">{{ t }}</li>
@@ -60,7 +56,7 @@
 
       @if (m.highlights.length) {
         <div class="panel__section">
-          <h3 class="panel__label">Schwerpunkte</h3>
+          <h3 class="panel__label">Highlights</h3>
           <ul class="panel__highlights">
             @for (h of m.highlights; track h) {
               <li>{{ h }}</li>

@@ -19,13 +19,7 @@ import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 /** Panel enters when camera motion starts — same beat as `CameraFocusManager` pre-roll end. */
 const PANEL_OPEN_DELAY_MS = CAMERA_FOCUS_PRE_ROLL_MS;
 /** Keep content mounted until slide/fade completes (`$dur-panel` in panel SCSS + small buffer). */
-const PANEL_CLOSE_CONTENT_HOLD_MS = 425;
-
-/**
- * Temporary: keep panel chrome visible for DOM / stacking verification.
- * Turn off when the panel is confirmed above the canvas; then backdrop follows `panelOpen` again.
- */
-const DEBUG_PANEL_ALWAYS_VISIBLE = true;
+const PANEL_CLOSE_CONTENT_HOLD_MS = 400;
 
 @Component({
   selector: 'app-portfolio-galaxy',
@@ -50,16 +44,6 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
   panelOpen = false;
   /** Content can outlive `panelOpen` briefly for exit motion */
   displayModel: PortfolioPanelViewModel | null = null;
-
-  /** Panel slide/open state: debug forces on; otherwise follows focus-driven `panelOpen`. */
-  get panelDisplayOpen(): boolean {
-    return DEBUG_PANEL_ALWAYS_VISIBLE || this.panelOpen;
-  }
-
-  /** Dimming backdrop: off in debug so the canvas stays clickable; otherwise tracks `panelOpen`. */
-  get panelBackdropOpen(): boolean {
-    return !DEBUG_PANEL_ALWAYS_VISIBLE && this.panelOpen;
-  }
 
   ngAfterViewInit(): void {
     const data = this.skills() ?? SAMPLE_PORTFOLIO_SKILLS;
