@@ -1,8 +1,8 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
-  NgZone,
   OnDestroy,
   ViewChild,
   inject,
@@ -35,7 +35,7 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
   /** When unset, placeholder skills from sample config are used */
   readonly skills = input<PortfolioSkill[] | undefined>(undefined);
 
-  private readonly zone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   private experience?: Experience;
   private closePanelTimer: ReturnType<typeof setTimeout> | null = null;
@@ -54,7 +54,11 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
       this.hostRef.nativeElement,
       data,
       () => {},
-      (id) => this.zone.run(() => this.onFocusId(id, data))
+      (id) => {
+        this.onFocusId(id, data);
+        // Zoneless apps: focus callbacks run from rAF (Three loop) — trigger CD so the panel binds.
+        this.cdr.detectChanges();
+      }
     );
     this.experience.start();
   }
