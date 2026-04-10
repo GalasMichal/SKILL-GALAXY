@@ -76,8 +76,8 @@ export class World {
   /** Softer fill + backdrop while an orb has focus — key stays slightly brighter for form */
   applyFocusPresentationBlend(t: number): void {
     const u = THREE.MathUtils.clamp(t, 0, 1);
-    const fill = THREE.MathUtils.lerp(1, 0.64, u);
-    const key = THREE.MathUtils.lerp(1, 0.88, u);
+    const fill = THREE.MathUtils.lerp(1, 0.76, u);
+    const key = THREE.MathUtils.lerp(1, 0.93, u);
     this.ambient.intensity = this.ambientBase * fill;
     this.hemi.intensity = this.hemiBase * fill;
     this.keyWeak.intensity = this.keyBase * key;

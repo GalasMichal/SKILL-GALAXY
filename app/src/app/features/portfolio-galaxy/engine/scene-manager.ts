@@ -7,10 +7,10 @@ import * as THREE from 'three';
 export class SceneManager {
   readonly scene = new THREE.Scene();
   private readonly bgNormal = new THREE.Color(0x03050c);
-  private readonly bgFocus = new THREE.Color(0x010206);
+  private readonly bgFocus = new THREE.Color(0x020308);
   private readonly fogColor = new THREE.Color(0x050814);
   private readonly fogDensityNormal = 0.0092;
-  private readonly fogDensityFocus = 0.0124;
+  private readonly fogDensityFocus = 0.0105;
 
   constructor() {
     this.scene.background = this.bgNormal.clone();

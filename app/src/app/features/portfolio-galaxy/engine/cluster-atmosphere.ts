@@ -103,7 +103,7 @@ export class ClusterAtmosphere {
   /** Pull cluster plate back slightly during focus so the hero orb reads more staged */
   setPresentationFocusBlend(t: number): void {
     const u = THREE.MathUtils.clamp(t, 0, 1);
-    const k = THREE.MathUtils.lerp(1, 0.66, u);
+    const k = THREE.MathUtils.lerp(1, 0.8, u);
     (this.spriteBack.material as THREE.SpriteMaterial).opacity = this.opacityBackBase * k;
     (this.spriteMid.material as THREE.SpriteMaterial).opacity = this.opacityMidBase * k;
   }

@@ -16,12 +16,13 @@ $dur-panel: 420ms;
   position: fixed;
   inset: 0;
   z-index: 100000;
-  background: rgba(2, 4, 10, 0.44);
+  /* Light dim + mild desaturation; almost no blur so the canvas stays sharp and readable. */
+  background: rgba(4, 7, 16, 0.34);
   opacity: 0;
   pointer-events: none;
   transition: opacity $dur-backdrop $ease-out;
-  -webkit-backdrop-filter: saturate(1.05) blur(4px);
-  backdrop-filter: saturate(1.05) blur(4px);
+  -webkit-backdrop-filter: saturate(0.93) blur(0);
+  backdrop-filter: saturate(0.93) blur(0);
 }
 
 .backdrop--open {
@@ -435,8 +436,8 @@ $dur-panel: 420ms;
 
 @media (max-width: 720px) {
   .backdrop {
-    -webkit-backdrop-filter: saturate(1.08) blur(5px);
-    backdrop-filter: saturate(1.08) blur(5px);
+    -webkit-backdrop-filter: saturate(0.93) blur(0);
+    backdrop-filter: saturate(0.93) blur(0);
   }
 
   .panel {

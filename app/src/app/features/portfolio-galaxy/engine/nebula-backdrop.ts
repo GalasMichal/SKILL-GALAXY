@@ -125,8 +125,8 @@ export class NebulaBackdrop {
     const u = THREE.MathUtils.clamp(t, 0, 1);
     const outer0 = 0.4;
     const inner0 = 0.22;
-    this.matOuter.opacity = THREE.MathUtils.lerp(outer0, outer0 * 0.74, u);
-    this.matInner.opacity = THREE.MathUtils.lerp(inner0, inner0 * 0.66, u);
+    this.matOuter.opacity = THREE.MathUtils.lerp(outer0, outer0 * 0.84, u);
+    this.matInner.opacity = THREE.MathUtils.lerp(inner0, inner0 * 0.78, u);
   }
 
   dispose(): void {
