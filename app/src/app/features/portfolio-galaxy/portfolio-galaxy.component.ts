@@ -8,7 +8,6 @@ import {
   inject,
   input
 } from '@angular/core';
-import { CAMERA_FOCUS_PRE_ROLL_MS } from './engine/camera-focus-manager';
 import { Experience } from './engine/experience';
 import type { PortfolioSkill } from './engine/portfolio-skill.model';
 import { PortfolioDetailPanelComponent } from './portfolio-detail-panel/portfolio-detail-panel.component';
@@ -17,8 +16,9 @@ import type { PortfolioPanelViewModel } from './portfolio-skill-detail.model';
 import { pfLog } from './engine/portfolio-focus-debug';
 import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 
-/** Panel enters when camera motion starts — same beat as `CameraFocusManager` pre-roll end. */
-const PANEL_OPEN_DELAY_MS = CAMERA_FOCUS_PRE_ROLL_MS;
+/** Set to `true` locally to log focus ↔ panel in the console. */
+const PANEL_FOCUS_TRACE = false;
+
 /** Keep content mounted until slide/fade completes (`$dur-panel` in panel SCSS + small buffer). */
 const PANEL_CLOSE_CONTENT_HOLD_MS = 400;
 
@@ -39,11 +39,13 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
 
   private experience?: Experience;
   private closePanelTimer: ReturnType<typeof setTimeout> | null = null;
-  private openPanelTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /** Visible panel state — animated open/close */
-  panelOpen = false;
-  /** Content can outlive `panelOpen` briefly for exit motion */
+  /**
+   * Single source of truth for “a sphere is focused” — same beat as `SkillSystem` / camera focus.
+   * Panel visibility: `focusedSkillId !== null` (see template `[open]`).
+   */
+  focusedSkillId: string | null = null;
+
   displayModel: PortfolioPanelViewModel | null = null;
 
   ngAfterViewInit(): void {
@@ -62,10 +64,6 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
       clearTimeout(this.closePanelTimer);
       this.closePanelTimer = null;
     }
-    if (this.openPanelTimer) {
-      clearTimeout(this.openPanelTimer);
-      this.openPanelTimer = null;
-    }
     this.experience?.dispose();
     this.experience = undefined;
   }
@@ -74,14 +72,23 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
     this.experience?.clearSkillFocus();
   }
 
+  private trace(message: string, detail?: unknown): void {
+    if (!PANEL_FOCUS_TRACE) {
+      return;
+    }
+    if (detail !== undefined) {
+      console.log(`[portfolio-panel] ${message}`, detail);
+    } else {
+      console.log(`[portfolio-panel] ${message}`);
+    }
+  }
+
   private onFocusId(id: string | null, data: PortfolioSkill[]): void {
+    this.trace('onFocusId', { id, focusedSkillId: this.focusedSkillId });
+
     if (this.closePanelTimer) {
       clearTimeout(this.closePanelTimer);
       this.closePanelTimer = null;
-    }
-    if (this.openPanelTimer) {
-      clearTimeout(this.openPanelTimer);
-      this.openPanelTimer = null;
     }
 
     if (id !== null) {
@@ -91,21 +98,25 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
         this.experience?.clearSkillFocus();
         return;
       }
+
+      const wasOpen = this.focusedSkillId !== null;
+      this.focusedSkillId = id;
       this.displayModel = skillToPanelView(skill);
-      if (this.panelOpen) {
-        pfLog('panel already open — updating model only', id);
-        return;
+
+      if (!wasOpen) {
+        this.trace('panel open: true (focusedSkillId set)', { focusedSkillId: this.focusedSkillId });
+      } else {
+        this.trace('focus changed while panel open — model updated', { focusedSkillId: this.focusedSkillId });
       }
-      this.openPanelTimer = setTimeout(() => {
-        this.panelOpen = true;
-        pfLog('panel open: true', id);
-        this.openPanelTimer = null;
-      }, PANEL_OPEN_DELAY_MS);
       return;
     }
 
-    pfLog('panel open: false');
-    this.panelOpen = false;
+    if (this.focusedSkillId !== null) {
+      this.trace('panel open: false (focus cleared)', { hadFocusedSkillId: this.focusedSkillId });
+    }
+    this.focusedSkillId = null;
+    this.trace('focusedSkillId after clear', this.focusedSkillId);
+
     this.closePanelTimer = setTimeout(() => {
       this.displayModel = null;
       this.closePanelTimer = null;

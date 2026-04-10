@@ -3,7 +3,7 @@
   <!-- UI layer + SCSS z-index: keep detail panel above WebGL; do not fold panel into #host. -->
   <div class="portfolio-ui-layer">
     <app-portfolio-detail-panel
-      [open]="panelOpen"
+      [open]="focusedSkillId !== null"
       [model]="displayModel"
       (dismiss)="onPanelDismiss()"
     />
