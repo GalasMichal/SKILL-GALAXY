@@ -46,22 +46,14 @@
       @if (m.techStack.length) {
         <div class="panel__section">
           <h3 class="panel__label">Tech stack</h3>
-          <ul class="panel__chips">
-            @for (t of m.techStack; track t) {
-              <li class="panel__chip">{{ t }}</li>
-            }
-          </ul>
+          <ul class="panel__chips"><li *ngFor="let t of m.techStack" class="panel__chip">{{ t }}</li></ul>
         </div>
       }
 
       @if (m.highlights.length) {
         <div class="panel__section">
           <h3 class="panel__label">Highlights</h3>
-          <ul class="panel__highlights">
-            @for (h of m.highlights; track h) {
-              <li>{{ h }}</li>
-            }
-          </ul>
+          <ul class="panel__highlights"><li *ngFor="let h of m.highlights">{{ h }}</li></ul>
         </div>
       }
 

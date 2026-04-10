@@ -19,6 +19,7 @@ $dur-panel: 360ms;
   opacity: 0;
   pointer-events: none;
   transition: opacity $dur-backdrop $ease-out;
+  -webkit-backdrop-filter: saturate(1.05) blur(4px);
   backdrop-filter: saturate(1.05) blur(4px);
 }
 
@@ -82,6 +83,7 @@ $dur-panel: 360ms;
   border-left: 2px solid color-mix(in srgb, var(--panel-accent) 48%, transparent);
   pointer-events: none;
   opacity: 0.9;
+  -webkit-mask-image: linear-gradient(185deg, black 0%, black 38%, transparent 92%);
   mask-image: linear-gradient(185deg, black 0%, black 38%, transparent 92%);
 }
 
@@ -377,6 +379,7 @@ $dur-panel: 360ms;
 
 @media (max-width: 720px) {
   .backdrop {
+    -webkit-backdrop-filter: saturate(1.08) blur(5px);
     backdrop-filter: saturate(1.08) blur(5px);
   }
 
@@ -400,6 +403,7 @@ $dur-panel: 360ms;
   .panel::before {
     border-left: none;
     border-top: 2px solid color-mix(in srgb, var(--panel-accent) 45%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
     opacity: 0.8;
     border-radius: 18px 18px 0 0;
