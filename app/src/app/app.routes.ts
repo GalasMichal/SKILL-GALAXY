@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { GalaxyPageComponent } from './features/galaxy/galaxy-page.component';
+import { PortfolioGalaxyComponent } from './features/portfolio-galaxy/portfolio-galaxy.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: GalaxyPageComponent
+    component: PortfolioGalaxyComponent
   }
 ];
