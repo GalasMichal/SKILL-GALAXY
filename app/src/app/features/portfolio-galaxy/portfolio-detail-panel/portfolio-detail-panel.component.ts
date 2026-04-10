@@ -1,11 +1,9 @@
-import { NgFor } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, input, output } from '@angular/core';
 import type { PortfolioPanelViewModel } from '../portfolio-skill-detail.model';
 
 @Component({
   selector: 'app-portfolio-detail-panel',
   standalone: true,
-  imports: [NgFor],
   templateUrl: './portfolio-detail-panel.component.html',
   styleUrl: './portfolio-detail-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

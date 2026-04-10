@@ -286,22 +286,31 @@ $dur-panel: 360ms;
 
 .panel__highlights {
   margin: 0;
-  padding-left: 1.12rem;
+  padding: 0;
   color: rgba(202, 208, 224, 0.84);
   font-size: 0.875rem;
   line-height: 1.58;
 }
 
-.panel__highlights li {
-  margin-bottom: 0.5rem;
+.panel__highlight-item {
+  position: relative;
+  margin: 0 0 0.5rem;
+  padding-left: 1.12rem;
 }
 
-.panel__highlights li:last-child {
+.panel__highlight-item:last-child {
   margin-bottom: 0;
 }
 
-.panel__highlights li::marker {
-  color: color-mix(in srgb, var(--panel-accent) 58%, rgba(195, 205, 225, 0.55));
+.panel__highlight-item::before {
+  content: '';
+  position: absolute;
+  left: 0.2rem;
+  top: 0.62em;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel-accent) 58%, rgba(195, 205, 225, 0.55));
 }
 
 .panel__actions {
