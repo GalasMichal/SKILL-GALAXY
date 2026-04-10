@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill Galaxy — GLB-Vorschau (lokal)</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #0a0a12;
+        color: #e0e0e8;
+      }
+      #info {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 16px;
+        background: rgba(10, 10, 20, 0.92);
+        border-bottom: 1px solid #2a2a3a;
+        font-size: 13px;
+        line-height: 1.5;
+        z-index: 10;
+      }
+      #info code {
+        color: #9cf;
+      }
+      #canvas-wrap {
+        position: fixed;
+        top: 140px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 200px;
+      }
+      #fileProtoWarn {
+        display: none;
+        background: #522;
+        border: 1px solid #f66;
+        padding: 10px 12px;
+        margin-top: 8px;
+        border-radius: 6px;
+        color: #fdd;
+      }
+      select,
+      button {
+        margin: 6px 8px 0 0;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #1a1a28;
+        color: #eee;
+        cursor: pointer;
+      }
+      .err {
+        color: #f88;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <strong>Lokale GLB-Vorschau</strong> (nur mit laufendem <code>ng serve</code> sinnvoll).<br />
+      Modell wählen → „Laden“. Wenn nichts erscheint: Konsole öffnen (F12).<br />
+      <strong>Hinweis:</strong> Datei heißt <code>preview-models.htm</code> (nicht .html), weil der Angular-Dev-Server
+      sonst die SPA-<code>index.html</code> ausliefert und du nur Schwarz siehst.<br />
+      <strong>Nicht</strong> diese Seite in den Online-gltf-Viewer ziehen — dort die <strong>.glb</strong> wählen.
+      <div>
+        <select id="pick">
+          <option value="planets/planet_frontend.glb">planets/planet_frontend.glb (Poly Haven, ~1,6 MB)</option>
+          <option value="planets/planet_backend.glb">planets/planet_backend.glb</option>
+          <option value="planets/planet_devops.glb">planets/planet_devops.glb</option>
+          <option value="planets/planet_softskill.glb">planets/planet_softskill.glb</option>
+          <option value="planets/planet_default.glb">planets/planet_default.glb</option>
+          <option value="blender/exoplanet_demo.glb">blender/exoplanet_demo.glb (Blender-Export, ~0,8 MB)</option>
+        </select>
+        <button type="button" id="load">Laden</button>
+      </div>
+      <div id="fileProtoWarn">
+        Du hast diese Seite per <strong>Doppelklick</strong> geöffnet (<code>file://</code>). Dann können Browser keine GLBs laden — der Bereich unten bleibt schwarz.
+        Starte im Projektordner <code>app</code> den Dev-Server (<code>ng serve</code>) und öffne:
+        <code>http://localhost:4200/models/preview-models.htm</code>
+      </div>
+      <div id="status"></div>
+      <div id="err" class="err"></div>
+    </div>
+    <div id="canvas-wrap"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+      const wrap = document.getElementById('canvas-wrap');
+      const statusEl = document.getElementById('status');
+      const errEl = document.getElementById('err');
+      const fileProtoWarn = document.getElementById('fileProtoWarn');
+      const pick = document.getElementById('pick');
+      const btn = document.getElementById('load');
+
+      const isFile = window.location.protocol === 'file:';
+      if (isFile) {
+        fileProtoWarn.style.display = 'block';
+      }
+
+      /** GLBs liegen unter /models/... (Angular kopiert public/ ins Root). */
+      function assetUrl(rel) {
+        if (isFile) return '';
+        const path = '/models/' + rel.replace(/^\/+/, '');
+        return new URL(path, window.location.origin).href;
+      }
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      wrap.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x12121c);
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 500);
+      camera.position.set(0, 0.35, 2.8);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      scene.add(new THREE.AmbientLight(0xaabbcc, 0.55));
+      const d = new THREE.DirectionalLight(0xffffff, 1.35);
+      d.position.set(2.5, 4, 2.5);
+      scene.add(d);
+      const fill = new THREE.DirectionalLight(0x6688cc, 0.35);
+      fill.position.set(-3, -1, -2);
+      scene.add(fill);
+
+      const grid = new THREE.GridHelper(4, 16, 0x334455, 0x223344);
+      grid.position.y = -1.05;
+      scene.add(grid);
+
+      let root = null;
+      const loader = new GLTFLoader();
+
+      function setStatus(t) {
+        statusEl.textContent = t;
+        errEl.textContent = '';
+      }
+      function setErr(t) {
+        errEl.textContent = t;
+      }
+
+      function resizeRenderer() {
+        const w = Math.max(1, wrap.clientWidth);
+        const h = Math.max(1, wrap.clientHeight);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+
+      async function loadUrl(rel) {
+        if (isFile) {
+          setErr('Unter file:// kann kein Modell geladen werden. Nutze ng serve + http://localhost:4200/models/preview-models.htm');
+          setStatus('');
+          return;
+        }
+        if (root) {
+          scene.remove(root);
+          root.traverse((o) => {
+            if (o.geometry) o.geometry.dispose();
+            if (o.material) {
+              const m = o.material;
+              if (Array.isArray(m)) m.forEach((x) => x.dispose());
+              else m.dispose();
+            }
+          });
+          root = null;
+        }
+        const url = assetUrl(rel);
+        setStatus('Lade: ' + url + ' …');
+        try {
+          const gltf = await loader.loadAsync(url);
+          root = gltf.scene;
+          const box = new THREE.Box3().setFromObject(root);
+          if (!box.isEmpty()) {
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const ctr = new THREE.Vector3();
+            box.getCenter(ctr);
+            root.position.sub(ctr);
+            const maxDim = Math.max(size.x, size.y, size.z, 0.001);
+            root.scale.setScalar(1.6 / maxDim);
+          }
+          scene.add(root);
+          setStatus('OK — ' + rel + ' geladen.');
+        } catch (e) {
+          setErr(String(e.message || e));
+          setStatus('');
+        }
+      }
+
+      btn.addEventListener('click', () => loadUrl(pick.value));
+
+      function tick() {
+        requestAnimationFrame(tick);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      window.addEventListener('resize', resizeRenderer);
+      requestAnimationFrame(() => {
+        resizeRenderer();
+        tick();
+        if (!isFile) loadUrl(pick.value);
+      });
+    </script>
+  </body>
+</html>

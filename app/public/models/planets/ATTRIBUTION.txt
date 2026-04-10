@@ -1,0 +1,7 @@
+Planet meshes (planet_*.glb) are derived from Poly Haven CC0 3D assets:
+  moon_rock_01 … moon_rock_05
+Source: https://polyhaven.com/
+License: CC0 — https://polyhaven.com/license
+
+Bundled as single-file GLB (embedded textures) via @gltf-transform/cli.
+To refresh or swap models: npm run download-planets (see app/scripts/download-polyhaven-planets.mjs).
