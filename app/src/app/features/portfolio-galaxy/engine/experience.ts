@@ -8,6 +8,7 @@ import { RaycasterManager } from './raycaster-manager';
 import { RendererManager } from './renderer-manager';
 import { ResizeHandler } from './resize-handler';
 import { SceneManager } from './scene-manager';
+import { createStudioEnvironment } from './scene-environment';
 import { pfLog } from './portfolio-focus-debug';
 import { World } from './world';
 import type { PortfolioSkill } from './portfolio-skill.model';
@@ -39,6 +40,7 @@ export class Experience {
   /** Smoothed 0..1 driven by orb focus — stages background, fog, and fill lights */
   private focusPresentationBlend = 0;
   private lastNotifiedFocusId: string | null = null;
+  private disposeStudioEnvironment?: () => void;
 
   constructor(
     private readonly host: HTMLElement,
@@ -59,6 +61,10 @@ export class Experience {
 
     this.world.addToScene(scene);
 
+    const studio = createStudioEnvironment(this.rendererManager.renderer);
+    scene.environment = studio.texture;
+    this.disposeStudioEnvironment = studio.dispose;
+
     this.post = new PostprocessingManager(this.rendererManager.renderer, scene, camera);
 
     this.controls = new OrbitControls(camera, this.rendererManager.renderer.domElement);
@@ -74,15 +80,21 @@ export class Experience {
     this.focus = new CameraFocusManager(camera, this.controls);
     this.focus.setDefaultFraming(camera.position.clone(), this.controls.target.clone());
     this.raycaster = new RaycasterManager();
-    this.interaction = new InteractionManager(
-      this.rendererManager.renderer.domElement,
-      camera,
-      this.raycaster,
-      this.world.skillSystem,
-      this.focus,
-      this.onSkillHover
-    );
-    this.interaction.start();
+
+    void this.world.loadSkillArtifacts().then(() => {
+      if (this.disposed) {
+        return;
+      }
+      this.interaction = new InteractionManager(
+        this.rendererManager.renderer.domElement,
+        camera,
+        this.raycaster!,
+        this.world.skillSystem,
+        this.focus!,
+        this.onSkillHover
+      );
+      this.interaction.start();
+    });
 
     this.resize = new ResizeHandler(this.host, (w, h, pr) => {
       this.cameraManager.setAspect(w / h);
@@ -149,6 +161,9 @@ export class Experience {
     this.interaction?.stop();
     this.controls?.dispose();
     this.post?.dispose();
+    this.sceneManager.scene.environment = null;
+    this.disposeStudioEnvironment?.();
+    this.disposeStudioEnvironment = undefined;
     this.world.removeFromScene(this.sceneManager.scene);
     this.world.dispose();
     this.rendererManager.dispose();

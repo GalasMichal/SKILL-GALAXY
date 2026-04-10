@@ -19,10 +19,12 @@ export class SkillSystem {
   private readonly byId = new Map<string, SkillNodeVisual>();
   private focusedSkillId: string | null = null;
   private lastHoverId: string | null = null;
+  private buildGeneration = 0;
 
   constructor(private readonly skills: PortfolioSkill[]) {}
 
-  build(): void {
+  async build(): Promise<void> {
+    const generation = ++this.buildGeneration;
     this.disposeVisuals();
     this.focusedSkillId = null;
     this.lastHoverId = null;
@@ -34,8 +36,12 @@ export class SkillSystem {
       const supportSlot = i === 0 ? 0 : i === 1 ? 1 : 0;
       const visual =
         role === 'hero'
-          ? new SkillNodeVisual(skill, pos, 'hero')
-          : new SkillNodeVisual(skill, pos, 'support', supportSlot);
+          ? await SkillNodeVisual.create(skill, pos, 'hero')
+          : await SkillNodeVisual.create(skill, pos, 'support', supportSlot);
+      if (generation !== this.buildGeneration) {
+        visual.dispose();
+        return;
+      }
       this.root.add(visual.group);
       this.visuals.push(visual);
       this.byId.set(skill.id, visual);
@@ -116,6 +122,7 @@ export class SkillSystem {
   }
 
   dispose(): void {
+    this.buildGeneration++;
     this.disposeVisuals();
   }
 }

@@ -3,6 +3,7 @@ import { ClusterAtmosphere } from './cluster-atmosphere';
 import { NebulaBackdrop } from './nebula-backdrop';
 import { Starfield } from './starfield';
 import { SkillSystem, createPlaceholderSkills } from './skill-system';
+import { disposeSharedArtifactTemplates } from './skill-node';
 import type { PortfolioSkill } from './portfolio-skill.model';
 
 /**
@@ -32,7 +33,6 @@ export class World {
     this.starfield = new Starfield();
     this.clusterAtmosphere = new ClusterAtmosphere();
     this.skillSystem = new SkillSystem(data);
-    this.skillSystem.build();
 
     this.ambient = new THREE.AmbientLight(0x2a2e3a, 0.14);
     this.hemi = new THREE.HemisphereLight(0x182030, 0x060810, 0.26);
@@ -55,6 +55,11 @@ export class World {
     this.ptKeyBase = this.ptKey.intensity;
     this.ptFillBase = this.ptFill.intensity;
     this.ptRimBase = this.ptRim.intensity;
+  }
+
+  /** Loads glTF skill meshes (call after `scene.environment` is set for best IBL). */
+  loadSkillArtifacts(): Promise<void> {
+    return this.skillSystem.build();
   }
 
   addToScene(scene: THREE.Scene): void {
@@ -100,6 +105,7 @@ export class World {
     this.starfield.dispose();
     this.clusterAtmosphere.dispose();
     this.skillSystem.dispose();
+    disposeSharedArtifactTemplates();
     this.ambient.dispose();
     this.hemi.dispose();
     this.keyWeak.dispose();
