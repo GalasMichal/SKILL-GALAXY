@@ -14,6 +14,7 @@ import type { PortfolioSkill } from './engine/portfolio-skill.model';
 import { PortfolioDetailPanelComponent } from './portfolio-detail-panel/portfolio-detail-panel.component';
 import { skillToPanelView } from './portfolio-panel.mapper';
 import type { PortfolioPanelViewModel } from './portfolio-skill-detail.model';
+import { pfLog } from './engine/portfolio-focus-debug';
 import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 
 /** Panel enters when camera motion starts — same beat as `CameraFocusManager` pre-roll end. */
@@ -86,19 +87,23 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
     if (id !== null) {
       const skill = data.find((s) => s.id === id);
       if (!skill) {
+        pfLog('onFocusId: unknown skill id (no panel update)', id);
         return;
       }
       this.displayModel = skillToPanelView(skill);
       if (this.panelOpen) {
+        pfLog('panel already open — updating model only', id);
         return;
       }
       this.openPanelTimer = setTimeout(() => {
         this.panelOpen = true;
+        pfLog('panel open: true', id);
         this.openPanelTimer = null;
       }, PANEL_OPEN_DELAY_MS);
       return;
     }
 
+    pfLog('panel open: false');
     this.panelOpen = false;
     this.closePanelTimer = setTimeout(() => {
       this.displayModel = null;

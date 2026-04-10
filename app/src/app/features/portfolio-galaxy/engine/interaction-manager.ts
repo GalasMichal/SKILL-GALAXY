@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { SkillSystem } from './skill-system';
 import type { RaycasterManager } from './raycaster-manager';
 import type { CameraFocusManager } from './camera-focus-manager';
+import { pfLog } from './portfolio-focus-debug';
 
 export type SkillHoverCallback = (skillId: string | null) => void;
 
@@ -20,8 +21,11 @@ export class InteractionManager {
   private readonly boundDown: (e: PointerEvent) => void;
   private readonly boundUp: (e: PointerEvent) => void;
 
+  private static readonly capture: AddEventListenerOptions = { capture: true };
+
   constructor(
-    private readonly host: HTMLElement,
+    /** Prefer the WebGL canvas so hit-testing runs on the same surface as OrbitControls. */
+    private readonly surface: HTMLElement,
     private readonly camera: THREE.PerspectiveCamera,
     private readonly raycasterManager: RaycasterManager,
     private readonly skillSystem: SkillSystem,
@@ -35,21 +39,21 @@ export class InteractionManager {
   }
 
   start(): void {
-    this.host.addEventListener('pointermove', this.boundMove);
-    this.host.addEventListener('pointerleave', this.boundLeave);
-    this.host.addEventListener('pointerdown', this.boundDown);
-    this.host.addEventListener('pointerup', this.boundUp);
+    this.surface.addEventListener('pointermove', this.boundMove, InteractionManager.capture);
+    this.surface.addEventListener('pointerleave', this.boundLeave);
+    this.surface.addEventListener('pointerdown', this.boundDown, InteractionManager.capture);
+    this.surface.addEventListener('pointerup', this.boundUp, InteractionManager.capture);
   }
 
   stop(): void {
-    this.host.removeEventListener('pointermove', this.boundMove);
-    this.host.removeEventListener('pointerleave', this.boundLeave);
-    this.host.removeEventListener('pointerdown', this.boundDown);
-    this.host.removeEventListener('pointerup', this.boundUp);
+    this.surface.removeEventListener('pointermove', this.boundMove, InteractionManager.capture);
+    this.surface.removeEventListener('pointerleave', this.boundLeave);
+    this.surface.removeEventListener('pointerdown', this.boundDown, InteractionManager.capture);
+    this.surface.removeEventListener('pointerup', this.boundUp, InteractionManager.capture);
   }
 
   private updatePointer(e: PointerEvent): void {
-    const r = this.host.getBoundingClientRect();
+    const r = this.surface.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * 2 - 1;
     const y = -((e.clientY - r.top) / r.height) * 2 + 1;
     this.pointer.set(x, y);
@@ -66,14 +70,14 @@ export class InteractionManager {
       this.skillSystem.setHover(id);
       this.onHover(id);
     }
-    this.host.style.cursor = id ? 'pointer' : 'default';
+    this.surface.style.cursor = id ? 'pointer' : 'default';
   }
 
   private clearHover(): void {
     this.currentHover = null;
     this.skillSystem.setHover(null);
     this.onHover(null);
-    this.host.style.cursor = 'default';
+    this.surface.style.cursor = 'default';
   }
 
   private onPointerDown(e: PointerEvent): void {
@@ -94,17 +98,21 @@ export class InteractionManager {
     const id = this.skillSystem.resolveSkillId(first);
     const focused = this.skillSystem.getFocusedSkillId();
 
+    pfLog('pointerup pick', { id, focused, clientX: e.clientX, clientY: e.clientY });
+
     if (!id) {
       if (focused !== null) {
+        pfLog('sphere click: (void) — clearing focus');
         this.skillSystem.setFocusedSkill(null);
         this.focusManager.returnToDefaultFraming();
       }
       return;
     }
 
+    pfLog(`sphere clicked: ${id}`);
+
     if (id === focused) {
-      this.skillSystem.setFocusedSkill(null);
-      this.focusManager.returnToDefaultFraming();
+      pfLog('same sphere re-click — keeping focus (no toggle off)');
       return;
     }
 

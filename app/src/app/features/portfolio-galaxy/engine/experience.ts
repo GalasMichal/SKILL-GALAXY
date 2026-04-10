@@ -8,6 +8,7 @@ import { RaycasterManager } from './raycaster-manager';
 import { RendererManager } from './renderer-manager';
 import { ResizeHandler } from './resize-handler';
 import { SceneManager } from './scene-manager';
+import { pfLog } from './portfolio-focus-debug';
 import { World } from './world';
 import type { PortfolioSkill } from './portfolio-skill.model';
 
@@ -74,7 +75,7 @@ export class Experience {
     this.focus.setDefaultFraming(camera.position.clone(), this.controls.target.clone());
     this.raycaster = new RaycasterManager();
     this.interaction = new InteractionManager(
-      this.host,
+      this.rendererManager.renderer.domElement,
       camera,
       this.raycaster,
       this.world.skillSystem,
@@ -117,7 +118,13 @@ export class Experience {
     if (fid === this.lastNotifiedFocusId) {
       return;
     }
+    const prev = this.lastNotifiedFocusId;
     this.lastNotifiedFocusId = fid;
+    if (fid === null) {
+      pfLog('focus cleared', { was: prev });
+    } else {
+      pfLog(`focus set: ${fid}`, { was: prev });
+    }
     this.onSkillFocus(fid);
   }
 
