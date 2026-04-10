@@ -9,7 +9,10 @@
     "prebuild": "node scripts/ensure-local-env.cjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate-planets": "node scripts/generate-planet-glbs.mjs",
+    "download-planets": "node scripts/download-polyhaven-planets.mjs",
+    "verify:preview": "node scripts/verify-preview-assets.cjs"
   },
   "private": true,
   "packageManager": "npm@11.11.0",
@@ -21,6 +24,8 @@
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@supabase/supabase-js": "^2.102.1",
+    "n8ao": "^1.10.1",
+    "postprocessing": "^6.39.0",
     "rxjs": "~7.8.0",
     "three": "^0.183.2",
     "tslib": "^2.3.0"
