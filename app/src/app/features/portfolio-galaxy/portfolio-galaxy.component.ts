@@ -8,6 +8,7 @@ import {
   inject,
   input
 } from '@angular/core';
+import { CAMERA_FOCUS_PRE_ROLL_MS } from './engine/camera-focus-manager';
 import { Experience } from './engine/experience';
 import type { PortfolioSkill } from './engine/portfolio-skill.model';
 import { PortfolioDetailPanelComponent } from './portfolio-detail-panel/portfolio-detail-panel.component';
@@ -15,10 +16,10 @@ import { skillToPanelView } from './portfolio-panel.mapper';
 import type { PortfolioPanelViewModel } from './portfolio-skill-detail.model';
 import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 
-/** Slight lag after orb focus so the panel follows the camera pre-roll (~170ms in `CameraFocusManager`). */
-const PANEL_OPEN_DELAY_MS = 135;
-/** Match panel slide-out duration before unmounting content. */
-const PANEL_CLOSE_CONTENT_HOLD_MS = 340;
+/** Panel enters when camera motion starts — same beat as `CameraFocusManager` pre-roll end. */
+const PANEL_OPEN_DELAY_MS = CAMERA_FOCUS_PRE_ROLL_MS;
+/** Keep content mounted until slide/fade completes (`$dur-panel` in panel SCSS + small buffer). */
+const PANEL_CLOSE_CONTENT_HOLD_MS = 425;
 
 @Component({
   selector: 'app-portfolio-galaxy',

@@ -10,6 +10,9 @@ const FOCUS_PRE_ROLL_S = 0.17;
 const FOCUS_DURATION_S = 2.52;
 const RETURN_DURATION_S = 2.68;
 
+/** UI (e.g. detail panel) can open when this elapses — same beat as the camera starts moving. */
+export const CAMERA_FOCUS_PRE_ROLL_MS = Math.round(FOCUS_PRE_ROLL_S * 1000);
+
 /**
  * Smooth camera + orbit-target transitions with a short pre-roll before focus moves.
  */
