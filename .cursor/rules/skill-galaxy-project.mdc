@@ -1,0 +1,77 @@
+---
+description: Skill Galaxy — Angular 21 + Three.js portfolio standards (architecture, UI, Three.js, git, safety)
+alwaysApply: true
+---
+
+# Skill Galaxy — Project Rules
+
+Structured **Angular 21 + Three.js** portfolio. Maintain a clean, professional, scalable codebase and portfolio-level quality.
+
+## 1. General working style
+
+- Read existing code before changing anything.
+- Never rewrite working systems without a clear reason.
+- Prefer extending existing architecture instead of replacing it.
+- Keep solutions simple, clean, and maintainable.
+- Avoid overengineering and unnecessary features.
+
+## 2. Architecture
+
+- Strict separation of concerns:
+  - Three.js: scene, rendering, animation, interaction.
+  - Angular: components, templates, state.
+  - Data: portfolio content, skill models / config.
+- Never mix DOM/UI logic directly into Three.js classes.
+- Never put Three.js logic inside Angular templates.
+- Respect existing layout: `experience` / `world` / `interaction` / `postprocessing`, portfolio UI components.
+
+## 3. UI & design
+
+- Premium, minimal, modern look.
+- Prefer spacing, typography, hierarchy, animation timing over flashy effects, loud color, or extra visuals.
+- No default-modal aesthetic; no heavy glassmorphism or glow.
+- UI must feel intentional and designed.
+
+## 4. Three.js
+
+- No random visual effects; no heavy shaders without clear purpose.
+- Keep the scene calm, cinematic, and controlled.
+- Improve through lighting, material tuning, subtle animation — not chaos.
+
+## 5. Feature development
+
+- Small, logical steps; one clear purpose per change.
+- Do not bundle unrelated features.
+- Keep the system stable.
+
+## 6. Git discipline
+
+- After every meaningful change: **prepare and run** a **small, logical** `git commit` locally (stage only what belongs to that change). If several themes changed, use **several commits**, not one lump.
+- Messages: **English**, imperative, short (e.g. `refine hero sphere material`, `polish panel layout and typography`).
+- Never one huge commit for many unrelated changes.
+- **Push:** **Never** run `git push` unless the user **explicitly** asks to push. Default is commit-only, push stays manual.
+- The assistant may **suggest** the next commit message when something is left uncommitted; the user can still commit themselves if they prefer.
+
+## 7. Archives / zips
+
+Never include: `node_modules`, `.angular`, `dist`, `.git`, `.cursor` (except team may version `.cursor/rules` only), `.agents`, `environment.local.ts`, secrets. Only relevant source in archives.
+
+## 8. Safety & cleanliness
+
+- Never expose API keys or secrets.
+- Do not modify environment / secret files unless explicitly requested.
+- Do not add unnecessary generated docs or noise files.
+
+## 9. Before changing code
+
+1. Understand the current implementation.
+2. Identify the smallest necessary change.
+3. Apply it cleanly.
+4. Commit locally with a proper message (or suggest it if the user will commit manually); **do not push** unless asked.
+
+## 10. Output
+
+- Complete, working code; readable structure; clear naming.
+- Comments only when they add real value.
+
+**Result:** The project should feel like a high-quality professional portfolio, not a prototype or demo.

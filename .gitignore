@@ -22,6 +22,8 @@ Thumbs.db
 # Local agent handoff & session plans (never commit)
 .local/
 
-# Cursor / local agent metadata (never commit)
-.cursor/
+# Cursor — ignore local config; version shared rules only (see .cursor/rules/)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .agents/
