@@ -5,11 +5,17 @@ import { portfolioAccentToCss } from './portfolio-skill-detail.model';
 /** Builds the panel view model from config — no copy in components. */
 export function skillToPanelView(skill: PortfolioSkill): PortfolioPanelViewModel {
   const d = skill.detail;
+  const summary = skill.summary.trim();
+  const detailBody = d?.description?.trim() ?? '';
+  const body = detailBody.length > 0 ? detailBody : summary;
+  const lede =
+    detailBody.length > 0 && summary.length > 0 && summary !== detailBody ? summary : null;
   return {
     id: skill.id,
     title: d?.headline ?? skill.title,
     accentCss: portfolioAccentToCss(skill.accentHex),
-    description: d?.description ?? skill.summary,
+    lede,
+    body,
     techStack: d?.techStack ?? [],
     highlights: d?.highlights ?? [],
     links: d?.links ?? [],

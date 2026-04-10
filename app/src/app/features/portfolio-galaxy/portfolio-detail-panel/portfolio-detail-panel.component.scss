@@ -2,10 +2,10 @@
   display: contents;
 }
 
-/* Align with `PANEL_CLOSE_CONTENT_HOLD_MS` / panel motion (~320ms). */
-$ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-$dur-backdrop: 300ms;
-$dur-panel: 320ms;
+/* Close: portfolio-galaxy PANEL_CLOSE_CONTENT_HOLD_MS ~= $dur-panel + buffer */
+$ease-out: cubic-bezier(0.25, 0.46, 0.45, 1);
+$dur-backdrop: 270ms;
+$dur-panel: 380ms;
 
 .backdrop {
   position: fixed;
@@ -64,7 +64,8 @@ $dur-panel: 320ms;
   pointer-events: none;
   transition:
     transform $dur-panel $ease-out,
-    opacity ($dur-panel - 20ms) $ease-out;
+    opacity ($dur-panel - 30ms) $ease-out;
+  will-change: transform, opacity;
 }
 
 .panel::before {
@@ -81,6 +82,7 @@ $dur-panel: 320ms;
   transform: translateX(0);
   opacity: 1;
   pointer-events: auto;
+  will-change: auto;
 }
 
 .panel__handle {
@@ -89,8 +91,8 @@ $dur-panel: 320ms;
 
 .panel__header {
   position: relative;
-  padding-bottom: 1rem;
-  margin-bottom: 0.15rem;
+  padding-bottom: 1.125rem;
+  margin-bottom: 0.05rem;
   border-bottom: 1px solid var(--panel-border);
 }
 
@@ -199,10 +201,10 @@ $dur-panel: 320ms;
 
 .panel__body {
   position: relative;
-  margin-top: 1.2rem;
+  margin-top: 1.35rem;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 0.25rem;
+  padding-right: 0.35rem;
   flex: 1;
   min-height: 0;
   scrollbar-width: thin;
@@ -218,25 +220,39 @@ $dur-panel: 320ms;
   border-radius: 6px;
 }
 
-.panel__description {
-  margin: 0 0 1.35rem;
+.panel__lede {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: rgba(210, 216, 232, 0.88);
+  max-width: 38rem;
+}
+
+.panel__body-text {
+  margin: 0 0 1.5rem;
   font-size: 0.9375rem;
-  line-height: 1.68;
+  line-height: 1.72;
   color: var(--panel-fg-muted);
   max-width: 38rem;
 }
 
 .panel__section {
-  margin-bottom: 1.28rem;
+  margin-bottom: 1.4rem;
+}
+
+.panel__section:last-of-type {
+  margin-bottom: 0;
 }
 
 .panel__label {
-  margin: 0 0 0.55rem;
-  font-size: 0.65625rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.625rem;
   font-weight: 650;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(158, 166, 188, 0.52);
+  color: rgba(148, 156, 178, 0.5);
 }
 
 .panel__chips {
@@ -281,9 +297,9 @@ $dur-panel: 320ms;
 .panel__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 1.35rem;
-  padding-top: 1.15rem;
+  gap: 0.5rem 0.6rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--panel-border);
 }
 
@@ -399,8 +415,14 @@ $dur-panel: 320ms;
     font-size: 1.22rem;
   }
 
-  .panel__description {
+  .panel__lede {
+    font-size: 0.8rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .panel__body-text {
     font-size: 0.90625rem;
+    margin-bottom: 1.35rem;
   }
 
   .panel__btn {
@@ -414,5 +436,6 @@ $dur-panel: 320ms;
   .backdrop,
   .panel {
     transition: none;
+    will-change: auto;
   }
 }

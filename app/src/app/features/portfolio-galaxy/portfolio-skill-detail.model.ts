@@ -28,7 +28,10 @@ export interface PortfolioPanelViewModel {
   title: string;
   /** Hex with # for CSS (e.g. #5b8cff) */
   accentCss: string;
-  description: string;
+  /** One-line summary under the title when a longer `body` exists */
+  lede: string | null;
+  /** Main narrative */
+  body: string;
   techStack: string[];
   highlights: string[];
   links: PortfolioSkillLink[];

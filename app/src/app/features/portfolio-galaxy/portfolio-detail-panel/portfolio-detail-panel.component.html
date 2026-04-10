@@ -31,18 +31,21 @@
       </div>
       <div class="panel__title-row">
         <h2 id="portfolio-panel-title" class="panel__title">{{ m.title }}</h2>
-        <button type="button" class="panel__close" (click)="dismiss.emit()" aria-label="Close detail panel">
+        <button type="button" class="panel__close" (click)="dismiss.emit()" aria-label="Detailpanel schließen">
           <span class="panel__close-icon" aria-hidden="true"></span>
         </button>
       </div>
     </header>
 
     <div class="panel__body">
-      <p class="panel__description">{{ m.description }}</p>
+      @if (m.lede) {
+        <p class="panel__lede">{{ m.lede }}</p>
+      }
+      <p class="panel__body-text">{{ m.body }}</p>
 
       @if (m.techStack.length) {
         <div class="panel__section">
-          <h3 class="panel__label">Tech stack</h3>
+          <h3 class="panel__label">Tech-Stack</h3>
           <ul class="panel__chips">
             @for (t of m.techStack; track t) {
               <li class="panel__chip">{{ t }}</li>
@@ -53,7 +56,7 @@
 
       @if (m.highlights.length) {
         <div class="panel__section">
-          <h3 class="panel__label">Highlights</h3>
+          <h3 class="panel__label">Schwerpunkte</h3>
           <ul class="panel__highlights">
             @for (h of m.highlights; track h) {
               <li>{{ h }}</li>
