@@ -1,3 +1,4 @@
+/* display:block (not contents) + z-index: panel/backdrop must stack above WebGL from a sibling tree. */
 :host {
   display: block;
   position: relative;

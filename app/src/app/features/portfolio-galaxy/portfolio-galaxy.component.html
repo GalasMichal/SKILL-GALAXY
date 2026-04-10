@@ -1,5 +1,6 @@
 <div class="portfolio-root">
   <div class="portfolio-galaxy" #host aria-label="Skill galaxy portfolio scene"></div>
+  <!-- UI layer + SCSS z-index: keep detail panel above WebGL; do not fold panel into #host. -->
   <div class="portfolio-ui-layer">
     <app-portfolio-detail-panel
       [open]="panelOpen"
