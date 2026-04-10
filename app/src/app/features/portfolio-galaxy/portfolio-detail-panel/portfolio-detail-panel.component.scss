@@ -8,8 +8,9 @@
 
 /* Close: portfolio-galaxy PANEL_CLOSE_CONTENT_HOLD_MS ~= $dur-panel + buffer */
 $ease-out: cubic-bezier(0.25, 0.46, 0.45, 1);
+$ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
 $dur-backdrop: 280ms;
-$dur-panel: 360ms;
+$dur-panel: 420ms;
 
 .backdrop {
   position: fixed;
@@ -69,12 +70,12 @@ $dur-panel: 360ms;
   box-shadow:
     -32px 0 96px rgba(0, 0, 0, 0.5),
     inset 1px 0 0 rgba(255, 255, 255, 0.035);
-  transform: translateX(105%);
+  transform: translate3d(calc(100% + 10px), 0, 0) scale(0.98);
   opacity: 0;
   pointer-events: none;
   transition:
-    transform $dur-panel $ease-out,
-    opacity ($dur-panel - 30ms) $ease-out;
+    transform $dur-panel $ease-panel,
+    opacity ($dur-panel - 50ms) $ease-panel;
   will-change: transform, opacity;
 }
 
@@ -90,7 +91,7 @@ $dur-panel: 360ms;
 }
 
 .panel--open {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0) scale(1);
   opacity: 1;
   pointer-events: auto;
   will-change: auto;
@@ -431,7 +432,7 @@ $dur-panel: 360ms;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 18px 18px 0 0;
     padding: 0.35rem 1.35rem calc(1.35rem + env(safe-area-inset-bottom, 0));
-    transform: translateY(110%);
+    transform: translate3d(0, calc(100% + 14px), 0) scale(0.98);
     box-shadow:
       0 -28px 100px rgba(0, 0, 0, 0.58),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -447,7 +448,7 @@ $dur-panel: 360ms;
   }
 
   .panel--open {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   .panel__handle {

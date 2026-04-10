@@ -20,7 +20,7 @@ import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 const PANEL_FOCUS_TRACE = false;
 
 /** Keep content mounted until slide/fade completes (`$dur-panel` in panel SCSS + small buffer). */
-const PANEL_CLOSE_CONTENT_HOLD_MS = 400;
+const PANEL_CLOSE_CONTENT_HOLD_MS = 470;
 
 @Component({
   selector: 'app-portfolio-galaxy',
