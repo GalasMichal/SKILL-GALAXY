@@ -58,7 +58,7 @@ export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   },
   {
     id: 'skill-creative',
-    artifactGlbUrl: 'models/planets/planet_softskill.glb',
+    /** Hero slot uses procedural luxury artifact (see `luxury-artifact-hero.ts`). */
     title: 'Nebula Gallery',
     summary:
       'WebGL exhibition space for a photography collective: slow camera language, print-grade color, and no shader gimmicks.',

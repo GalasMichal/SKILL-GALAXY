@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { PortfolioSkill } from './portfolio-skill.model';
+import { buildLuxuryHeroArtifact } from './luxury-artifact-hero';
 import { resolveSkillArtifactUrl, toLoaderAbsoluteUrl } from './skill-artifact-url';
 
 export type SkillVisualRole = 'hero' | 'support';
@@ -170,7 +171,7 @@ export class SkillNodeVisual {
   readonly skillId: string;
   private readonly artifact: THREE.Group;
   private readonly raycastMeshes: THREE.Mesh[];
-  private readonly materials: { mat: PbrMaterial; baseRoughness: number }[] = [];
+  private readonly materials: { mat: PbrMaterial; baseRoughness: number; emissiveBase: number }[] = [];
 
   private readonly basePosition: THREE.Vector3;
   private readonly phase: number;
@@ -198,7 +199,7 @@ export class SkillNodeVisual {
     position: THREE.Vector3,
     role: SkillVisualRole,
     supportSlot: 0 | 1,
-    sourceLabel: 'gltf' | 'fallback'
+    sourceLabel: 'gltf' | 'fallback' | 'luxury-hero'
   ) {
     this.skillId = skill.id;
     this.artifact = artifact;
@@ -248,21 +249,39 @@ export class SkillNodeVisual {
     this.raycastMeshes = [];
     collectRaycastMeshes(this.artifact, skill.id, this.raycastMeshes);
 
-    this.artifact.traverse((obj) => {
-      if (obj instanceof THREE.Mesh) {
-        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-        const next: THREE.Material[] = [];
-        for (const m of mats) {
-          const pm = upgradeToPbr(m, accent, role, this.baseEmissive);
-          next.push(pm);
-          this.materials.push({
-            mat: pm,
-            baseRoughness: pm.roughness
-          });
+    if (sourceLabel === 'luxury-hero') {
+      this.artifact.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          for (const m of mats) {
+            if (m instanceof THREE.MeshPhysicalMaterial || m instanceof THREE.MeshStandardMaterial) {
+              this.materials.push({
+                mat: m,
+                baseRoughness: m.roughness,
+                emissiveBase: m.emissiveIntensity
+              });
+            }
+          }
         }
-        obj.material = (next.length === 1 ? next[0] : next) as typeof obj.material;
-      }
-    });
+      });
+    } else {
+      this.artifact.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          const next: THREE.Material[] = [];
+          for (const m of mats) {
+            const pm = upgradeToPbr(m, accent, role, this.baseEmissive);
+            next.push(pm);
+            this.materials.push({
+              mat: pm,
+              baseRoughness: pm.roughness,
+              emissiveBase: pm.emissiveIntensity
+            });
+          }
+          obj.material = (next.length === 1 ? next[0] : next) as typeof obj.material;
+        }
+      });
+    }
 
     this.group.add(this.artifact);
     this.group.userData['skillNodeId'] = skill.id;
@@ -274,6 +293,11 @@ export class SkillNodeVisual {
     role: SkillVisualRole = 'support',
     supportSlot: 0 | 1 = 0
   ): Promise<SkillNodeVisual> {
+    if (role === 'hero') {
+      const artifact = buildLuxuryHeroArtifact(skill);
+      return new SkillNodeVisual(artifact, skill, position, role, supportSlot, 'luxury-hero');
+    }
+
     const relative = resolveSkillArtifactUrl(skill);
     const absolute = toLoaderAbsoluteUrl(relative);
     console.info('[portfolio-galaxy glTF] resolved URL', { skillId: skill.id, relative, absolute });
@@ -355,8 +379,9 @@ export class SkillNodeVisual {
     const roughHover = THREE.MathUtils.lerp(1, 0.92, easeHover);
     const roughDim = THREE.MathUtils.lerp(1, 1.08, this.focusDimT);
 
-    for (const { mat, baseRoughness } of this.materials) {
-      mat.emissiveIntensity = emissiveIntensity;
+    const emissiveNorm = this.baseEmissive > 1e-5 ? 1 / this.baseEmissive : 1;
+    for (const { mat, baseRoughness, emissiveBase } of this.materials) {
+      mat.emissiveIntensity = emissiveIntensity * emissiveBase * emissiveNorm;
       mat.roughness = THREE.MathUtils.clamp(baseRoughness * roughHover * roughDim, 0.12, 0.95);
     }
   }
