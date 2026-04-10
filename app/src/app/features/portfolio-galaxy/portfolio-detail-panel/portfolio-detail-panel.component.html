@@ -1,0 +1,83 @@
+<div
+  class="backdrop"
+  [class.backdrop--open]="open()"
+  (click)="onBackdropClick($event)"
+  aria-hidden="true"
+></div>
+
+<section
+  class="panel"
+  [class.panel--open]="open()"
+  [style.--panel-accent]="model()?.accentCss ?? 'rgba(150, 160, 185, 0.45)'"
+  [attr.data-skill-id]="model()?.id ?? ''"
+  role="dialog"
+  [attr.aria-modal]="open()"
+  [attr.aria-hidden]="!open()"
+  aria-labelledby="portfolio-panel-title"
+>
+  @if (model(); as m) {
+    <header class="panel__header">
+      <div class="panel__meta">
+        @if (m.category) {
+          <span class="panel__pill">{{ m.category }}</span>
+        }
+        @if (m.year) {
+          <span class="panel__meta-text">{{ m.year }}</span>
+        }
+        @if (m.status) {
+          <span class="panel__status">{{ m.status }}</span>
+        }
+      </div>
+      <div class="panel__title-row">
+        <h2 id="portfolio-panel-title" class="panel__title">{{ m.title }}</h2>
+        <button type="button" class="panel__close" (click)="dismiss.emit()" aria-label="Close detail panel">
+          <span class="panel__close-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="panel__body">
+      <p class="panel__description">{{ m.description }}</p>
+
+      @if (m.techStack.length) {
+        <div class="panel__section">
+          <h3 class="panel__label">Tech stack</h3>
+          <ul class="panel__chips">
+            @for (t of m.techStack; track t) {
+              <li class="panel__chip">{{ t }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (m.highlights.length) {
+        <div class="panel__section">
+          <h3 class="panel__label">Highlights</h3>
+          <ul class="panel__highlights">
+            @for (h of m.highlights; track h) {
+              <li>{{ h }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (m.links.length) {
+        <div class="panel__actions">
+          @for (link of m.links; track link.href + link.label) {
+            <a
+              class="panel__btn"
+              [class.panel__btn--primary]="link.variant === 'primary' || !link.variant"
+              [class.panel__btn--secondary]="link.variant === 'secondary'"
+              [class.panel__btn--ghost]="link.variant === 'ghost'"
+              [attr.href]="link.href"
+              [attr.target]="link.external ? '_blank' : null"
+              [attr.rel]="link.external ? 'noopener noreferrer' : null"
+            >
+              {{ link.label }}
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>
