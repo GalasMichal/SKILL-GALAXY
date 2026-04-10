@@ -1,7 +1,7 @@
 <div
   class="backdrop"
   [class.backdrop--open]="open()"
-  (click)="onBackdropClick($event)"
+  (pointerup)="onBackdropPointerUp($event)"
   aria-hidden="true"
 ></div>
 

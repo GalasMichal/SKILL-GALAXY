@@ -86,6 +86,9 @@ export class InteractionManager {
   }
 
   private onPointerUp(e: PointerEvent): void {
+    if (!e.isPrimary) {
+      return;
+    }
     const dx = e.clientX - this.downX;
     const dy = e.clientY - this.downY;
     if (dx * dx + dy * dy > InteractionManager.CLICK_DRAG_THRESH_SQ) {

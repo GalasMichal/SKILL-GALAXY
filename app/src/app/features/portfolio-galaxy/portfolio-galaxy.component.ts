@@ -87,7 +87,8 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
     if (id !== null) {
       const skill = data.find((s) => s.id === id);
       if (!skill) {
-        pfLog('onFocusId: unknown skill id (no panel update)', id);
+        pfLog('onFocusId: unknown skill id — clearing 3D focus to resync', id);
+        this.experience?.clearSkillFocus();
         return;
       }
       this.displayModel = skillToPanelView(skill);

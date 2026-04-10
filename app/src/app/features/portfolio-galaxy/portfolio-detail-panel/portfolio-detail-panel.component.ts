@@ -22,9 +22,24 @@ export class PortfolioDetailPanelComponent {
     }
   }
 
-  onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      this.dismiss.emit();
+  /**
+   * Use pointerup, not click: after touch/pointer on the canvas, browsers may synthesize a click
+   * on the topmost element under the finger once the panel/backdrop appears — which would
+   * immediately dismiss and clear sphere focus.
+   */
+  onBackdropPointerUp(event: PointerEvent): void {
+    if (!this.open()) {
+      return;
     }
+    if (!event.isPrimary) {
+      return;
+    }
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return;
+    }
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+    this.dismiss.emit();
   }
 }
