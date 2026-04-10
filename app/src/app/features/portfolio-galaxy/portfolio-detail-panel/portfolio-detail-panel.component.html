@@ -1,6 +1,6 @@
 <div
   class="backdrop"
-  [class.backdrop--open]="open()"
+  [class.backdrop--open]="open() && showBackdrop()"
   (click)="onBackdropClick($event)"
   aria-hidden="true"
 ></div>
@@ -16,6 +16,10 @@
   aria-labelledby="portfolio-panel-title"
 >
   <div class="panel__handle" aria-hidden="true"></div>
+  <div class="panel__debug-test">
+    <div class="panel__debug-test-title">TEST PANEL</div>
+    <p class="panel__debug-test-selected">Selected: {{ model()?.title ?? '—' }}</p>
+  </div>
   @if (model(); as m) {
     <header class="panel__header">
       <div class="panel__meta">

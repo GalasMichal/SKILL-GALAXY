@@ -11,6 +11,8 @@ import type { PortfolioPanelViewModel } from '../portfolio-skill-detail.model';
 export class PortfolioDetailPanelComponent {
   /** Drives visibility animation — content may linger briefly via parent `model`. */
   readonly open = input(false);
+  /** When false, panel can stay open without fullscreen dimmer (e.g. debug: keep canvas clickable). */
+  readonly showBackdrop = input(true);
   readonly model = input<PortfolioPanelViewModel | null>(null);
 
   readonly dismiss = output<void>();
@@ -23,6 +25,9 @@ export class PortfolioDetailPanelComponent {
   }
 
   onBackdropClick(event: MouseEvent): void {
+    if (!this.showBackdrop()) {
+      return;
+    }
     if (event.target === event.currentTarget) {
       this.dismiss.emit();
     }
