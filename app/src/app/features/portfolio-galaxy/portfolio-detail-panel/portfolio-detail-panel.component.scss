@@ -6,11 +6,19 @@
   pointer-events: none;
 }
 
+/* Registered orb hue — enables smooth interpolation when switching focused skills. */
+@property --panel-accent-orb {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9aa3b8;
+}
+
 /* Close: portfolio-galaxy PANEL_CLOSE_CONTENT_HOLD_MS ~= $dur-panel + buffer */
 $ease-out: cubic-bezier(0.25, 0.46, 0.45, 1);
 $ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
 $dur-backdrop: 300ms;
 $dur-panel: 420ms;
+$dur-accent: 520ms;
 
 .backdrop {
   position: fixed;
@@ -31,7 +39,9 @@ $dur-panel: 420ms;
 }
 
 .panel {
-  --panel-accent: rgba(150, 160, 185, 0.45);
+  /* Raw sphere accent (bound inline); UI uses a muted mix so type stays calm. */
+  --panel-accent-orb: #9aa3b8;
+  --panel-accent: color-mix(in srgb, var(--panel-accent-orb) 30%, rgba(152, 162, 188, 0.48));
   --panel-fg: rgba(244, 246, 252, 0.98);
   --panel-fg-muted: rgba(188, 196, 214, 0.82);
   --panel-fg-dim: rgba(148, 156, 176, 0.62);
@@ -67,10 +77,11 @@ $dur-panel: 420ms;
     rgba(10, 11, 18, 0.99) 42%,
     rgba(7, 8, 14, 1) 100%
   );
-  border-left: 1px solid var(--panel-border);
+  border-left: 1px solid color-mix(in srgb, var(--panel-accent-orb) 20%, var(--panel-border));
   box-shadow:
     -40px 0 140px rgba(0, 0, 0, 0.52),
     -16px 0 56px rgba(0, 0, 0, 0.38),
+    -8px 0 40px color-mix(in srgb, var(--panel-accent-orb) 12%, transparent),
     0 0 0 1px rgba(255, 255, 255, 0.04),
     inset 1px 0 0 rgba(255, 255, 255, 0.042);
   transform: translate3d(calc(100% + 10px), 0, 0) scale(0.98);
@@ -78,7 +89,8 @@ $dur-panel: 420ms;
   pointer-events: none;
   transition:
     transform $dur-panel $ease-panel,
-    opacity ($dur-panel - 50ms) $ease-panel;
+    opacity ($dur-panel - 50ms) $ease-panel,
+    --panel-accent-orb $dur-accent $ease-panel;
   will-change: transform, opacity;
 }
 
@@ -86,9 +98,9 @@ $dur-panel: 420ms;
   content: '';
   position: absolute;
   inset: 0;
-  border-left: 2px solid color-mix(in srgb, var(--panel-accent) 48%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--panel-accent-orb) 26%, transparent);
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.85;
   -webkit-mask-image: linear-gradient(185deg, black 0%, black 38%, transparent 92%);
   mask-image: linear-gradient(185deg, black 0%, black 38%, transparent 92%);
 }
@@ -448,20 +460,21 @@ $dur-panel: 420ms;
     width: 100%;
     max-height: min(82dvh, 100dvh);
     border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid color-mix(in srgb, var(--panel-accent-orb) 16%, rgba(255, 255, 255, 0.1));
     border-radius: 18px 18px 0 0;
     padding: 0.35rem 1.35rem calc(1.35rem + env(safe-area-inset-bottom, 0));
     transform: translate3d(0, calc(100% + 14px), 0) scale(0.98);
     box-shadow:
       0 -32px 120px rgba(0, 0, 0, 0.6),
       0 -8px 40px rgba(0, 0, 0, 0.35),
+      0 -14px 48px color-mix(in srgb, var(--panel-accent-orb) 10%, transparent),
       0 0 0 1px rgba(255, 255, 255, 0.045),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .panel::before {
     border-left: none;
-    border-top: 2px solid color-mix(in srgb, var(--panel-accent) 45%, transparent);
+    border-top: 2px solid color-mix(in srgb, var(--panel-accent-orb) 26%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
     opacity: 0.8;
