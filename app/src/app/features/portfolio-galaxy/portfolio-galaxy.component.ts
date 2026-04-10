@@ -15,6 +15,11 @@ import { skillToPanelView } from './portfolio-panel.mapper';
 import type { PortfolioPanelViewModel } from './portfolio-skill-detail.model';
 import { SAMPLE_PORTFOLIO_SKILLS } from './sample-portfolio-skills';
 
+/** Slight lag after orb focus so the panel follows the camera pre-roll (~170ms in `CameraFocusManager`). */
+const PANEL_OPEN_DELAY_MS = 135;
+/** Match panel slide-out duration before unmounting content. */
+const PANEL_CLOSE_CONTENT_HOLD_MS = 340;
+
 @Component({
   selector: 'app-portfolio-galaxy',
   standalone: true,
@@ -32,6 +37,7 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
 
   private experience?: Experience;
   private closePanelTimer: ReturnType<typeof setTimeout> | null = null;
+  private openPanelTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Visible panel state — animated open/close */
   panelOpen = false;
@@ -54,6 +60,10 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
       clearTimeout(this.closePanelTimer);
       this.closePanelTimer = null;
     }
+    if (this.openPanelTimer) {
+      clearTimeout(this.openPanelTimer);
+      this.openPanelTimer = null;
+    }
     this.experience?.dispose();
     this.experience = undefined;
   }
@@ -67,13 +77,24 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
       clearTimeout(this.closePanelTimer);
       this.closePanelTimer = null;
     }
+    if (this.openPanelTimer) {
+      clearTimeout(this.openPanelTimer);
+      this.openPanelTimer = null;
+    }
 
     if (id !== null) {
       const skill = data.find((s) => s.id === id);
-      if (skill) {
-        this.displayModel = skillToPanelView(skill);
-        this.panelOpen = true;
+      if (!skill) {
+        return;
       }
+      this.displayModel = skillToPanelView(skill);
+      if (this.panelOpen) {
+        return;
+      }
+      this.openPanelTimer = setTimeout(() => {
+        this.panelOpen = true;
+        this.openPanelTimer = null;
+      }, PANEL_OPEN_DELAY_MS);
       return;
     }
 
@@ -81,6 +102,6 @@ export class PortfolioGalaxyComponent implements AfterViewInit, OnDestroy {
     this.closePanelTimer = setTimeout(() => {
       this.displayModel = null;
       this.closePanelTimer = null;
-    }, 300);
+    }, PANEL_CLOSE_CONTENT_HOLD_MS);
   }
 }
