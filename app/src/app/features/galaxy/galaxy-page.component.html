@@ -2,24 +2,183 @@
   <section class="intro">
     <h1>Skill Galaxy</h1>
     <p>
-      Plan A als MVP: 3D-Skill-Netzwerk mit Angular, Three.js und Supabase.
-      Ohne konfigurierte Supabase-Keys werden lokale Seed-Daten angezeigt.
+      Cinematic 3D map of skills: pick a <strong>quest target</strong>, follow the prerequisite path, and light up the
+      galaxy step by step.
     </p>
+    <div class="toolbar">
+      <button type="button" (click)="toggleGraphMode()">
+        {{ useDemoGraph ? 'Switch to Project Data' : 'Switch to Global Demo' }}
+      </button>
+      <button type="button" class="demo-quest" (click)="startDemoQuest()">Demo quest → Supabase</button>
+      <div class="filters">
+        @for (category of categories; track category) {
+          <button
+            type="button"
+            class="chip"
+            (click)="setCategoryFilter(category)"
+            [class.active]="activeCategory === category"
+          >
+            {{ category }}
+          </button>
+        }
+      </div>
+      <div class="look-presets" aria-label="Galaxie-Looks">
+        <span class="look-label">Look</span>
+        @for (preset of galaxyVisualPresets; track preset.id) {
+          <button
+            type="button"
+            class="look-chip"
+            [class.active]="activeVisualPreset.id === preset.id"
+            (click)="setGalaxyVisualPreset(preset)"
+          >
+            {{ preset.label }}
+          </button>
+        }
+      </div>
+    </div>
+    <small class="source">
+      Data source:
+      {{
+        dataSource === 'supabase'
+          ? 'Supabase'
+          : dataSource === 'demo'
+            ? 'Global demo graph'
+            : 'Local sample fallback'
+      }}
+    </small>
   </section>
 
   <section class="content">
-    <div #canvasHost class="canvas"></div>
+    <div #canvasHost class="canvas">
+      @if (hoveredNode) {
+        <div class="tooltip" [style.left.px]="tooltipX" [style.top.px]="tooltipY">
+          {{ hoveredNode.label }}
+        </div>
+      }
+      @if (questTargetNode(); as qt) {
+        <div class="hud-quest">
+          <div class="hud-title">Quest</div>
+          <div class="hud-target">{{ qt.label }}</div>
+          @if (questProgress(); as prog) {
+            <div class="hud-progress">
+              <div class="hud-bar" [style.width.%]="prog.total ? (100 * prog.done) / prog.total : 0"></div>
+            </div>
+            <small>{{ prog.done }} / {{ prog.total }} prerequisites cleared</small>
+          }
+        </div>
+      }
+    </div>
 
     <aside class="panel">
-      <h2>Skills</h2>
+      <h2>Quest mode</h2>
+      <div class="quest-panel">
+        <label class="field">
+          <span>Target skill</span>
+          <select [value]="questTargetId ?? ''" (change)="setQuestTarget($any($event.target).value)">
+            <option value="">— Explore freely —</option>
+            @for (node of sourceGraph.nodes; track node.id) {
+              <option [value]="node.id">{{ node.label }} ({{ node.category }})</option>
+            }
+          </select>
+        </label>
+        @if (questTargetNode(); as qt) {
+          <p class="quest-objective">
+            Objective: reach <strong>{{ qt.label }}</strong> by completing prerequisite skills in order.
+          </p>
+          @if (questProgress(); as prog) {
+            <div class="progress-row">
+              <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="prog.total ? (100 * prog.done) / prog.total : 0"></div>
+              </div>
+              <span class="progress-label">{{ prog.done }} / {{ prog.total }}</span>
+            </div>
+          }
+          <div class="next-card">
+            <div class="next-label">Recommended next</div>
+            @if (nextQuestNodes().length) {
+              @for (n of nextQuestNodes(); track n.id) {
+                <button type="button" class="next-skill" (click)="selectNode(n)">
+                  {{ n.label }}
+                  <small>{{ questStateDisplay(questStateLabel(n.id)) }}</small>
+                </button>
+              }
+            } @else if (questCompleted.has(qt.id)) {
+              <p class="quest-done">Quest complete — target unlocked.</p>
+            } @else {
+              <p class="muted">Select a node on the map or from the list.</p>
+            }
+          </div>
+        } @else {
+          <p class="muted">Choose a target to enable the guided path. Edges marked <em>requires</em> define the quest chain.</p>
+        }
+      </div>
+
+      <h2 class="panel-sub">Skill nodes</h2>
+      <div class="legend">
+        <span><i class="requires"></i> requires</span>
+        <span><i class="supports"></i> supports</span>
+        <span><i class="related"></i> related</span>
+      </div>
+      <div class="legend quest-legend">
+        <span><i class="q-locked"></i> locked</span>
+        <span><i class="q-next"></i> next</span>
+        <span><i class="q-done"></i> done</span>
+        <span><i class="q-boss"></i> target</span>
+      </div>
       <ul>
         @for (node of graph.nodes; track node.id) {
-          <li>
+          <li (click)="selectNode(node)" [class.active]="selectedNode?.id === node.id">
             <span>{{ node.label }}</span>
-            <small>{{ node.category }} · Level {{ node.level }}</small>
+            @if (questTargetId) {
+              <span class="quest-pill" [attr.data-state]="questStateLabel(node.id)">{{
+                questStateDisplay(questStateLabel(node.id))
+              }}</span>
+            }
+            <small>{{ node.category }} · level {{ node.level }}</small>
           </li>
         }
       </ul>
+
+      @if (selectedNode) {
+        <div class="details">
+          <h3>{{ selectedNode.label }}</h3>
+          @if (questTargetId) {
+            <div class="state-badge" [attr.data-state]="questStateLabel(selectedNode.id)">
+              {{ questStateDisplay(questStateLabel(selectedNode.id)) }}
+            </div>
+          }
+          <p>{{ selectedNode.description || 'No description available yet.' }}</p>
+          @if (selectedNode.xp != null || selectedNode.difficulty != null) {
+            <p class="meta-game">
+              @if (selectedNode.difficulty != null) {
+                <span>Difficulty {{ selectedNode.difficulty }}/5</span>
+              }
+              @if (selectedNode.xp != null) {
+                <span>{{ selectedNode.xp }} XP</span>
+              }
+            </p>
+          }
+          @if (selectedNode.tags?.length) {
+            <div class="tag-row">
+              @for (t of selectedNode.tags; track t) {
+                <span class="tag">{{ t }}</span>
+              }
+            </div>
+          }
+          <small>slug: {{ selectedNode.slug }} · relations: {{ relationCount(selectedNode) }}</small>
+
+          @if (questTargetId && canCompleteSelectedQuestStep()) {
+            <button type="button" class="complete-step" (click)="completeSelectedQuestStep()">Mark step complete</button>
+          }
+
+          <h4>Connected skills</h4>
+          <div class="chips">
+            @for (node of getConnectedNodes(selectedNode); track node.id) {
+              <button type="button" (click)="selectNode(node)">{{ node.label }}</button>
+            }
+          </div>
+        </div>
+      }
     </aside>
   </section>
 </main>
