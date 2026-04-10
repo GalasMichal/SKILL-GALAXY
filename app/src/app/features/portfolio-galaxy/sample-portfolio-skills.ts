@@ -6,7 +6,7 @@ import type { PortfolioSkill } from './engine/portfolio-skill.model';
 export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   {
     id: 'skill-frontend',
-    artifactGlbUrl: '/models/planets/planet_frontend.glb',
+    artifactGlbUrl: 'models/planets/planet_frontend.glb',
     title: 'Atlas Console',
     summary:
       'Angular operations console for a logistics network: dense tables, fast filters, and zero ambiguity in handover states.',
@@ -32,7 +32,7 @@ export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   },
   {
     id: 'skill-backend',
-    artifactGlbUrl: '/models/planets/planet_backend.glb',
+    artifactGlbUrl: 'models/planets/planet_backend.glb',
     title: 'Harbor API',
     summary:
       'Postgres-first billing and entitlements API: idempotent webhooks, explicit migrations, and RLS that matches finance review.',
@@ -58,7 +58,7 @@ export const SAMPLE_PORTFOLIO_SKILLS: PortfolioSkill[] = [
   },
   {
     id: 'skill-creative',
-    artifactGlbUrl: '/models/planets/planet_softskill.glb',
+    artifactGlbUrl: 'models/planets/planet_softskill.glb',
     title: 'Nebula Gallery',
     summary:
       'WebGL exhibition space for a photography collective: slow camera language, print-grade color, and no shader gimmicks.',

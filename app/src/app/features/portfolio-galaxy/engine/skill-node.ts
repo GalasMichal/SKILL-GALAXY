@@ -1,9 +1,24 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { PortfolioSkill } from './portfolio-skill.model';
-import { resolveSkillArtifactUrl } from './skill-artifact-url';
+import { resolveSkillArtifactUrl, toLoaderAbsoluteUrl } from './skill-artifact-url';
 
 export type SkillVisualRole = 'hero' | 'support';
+
+/** Enable verbose logs: `localStorage.setItem('portfolioGltfTrace','1')` then reload. */
+const SKILL_ARTIFACT_TRACE =
+  typeof window !== 'undefined' && window.localStorage?.getItem('portfolioGltfTrace') === '1';
+
+function logGltf(message: string, detail?: unknown): void {
+  if (!SKILL_ARTIFACT_TRACE) {
+    return;
+  }
+  if (detail !== undefined) {
+    console.info(`[portfolio-galaxy glTF] ${message}`, detail);
+  } else {
+    console.info(`[portfolio-galaxy glTF] ${message}`);
+  }
+}
 
 function smoothToward(current: number, goal: number, delta: number, lambda: number): number {
   const t = 1 - Math.exp(-lambda * delta);
@@ -13,17 +28,50 @@ function smoothToward(current: number, goal: number, delta: number, lambda: numb
 type PbrMaterial = THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial;
 
 const loader = new GLTFLoader();
-const templateByUrl = new Map<string, THREE.Group>();
+loader.setCrossOrigin('anonymous');
 
-async function getArtifactTemplate(url: string): Promise<THREE.Group> {
-  const cached = templateByUrl.get(url);
+const templateByUrl = new Map<string, THREE.Group>();
+const templateLoading = new Map<string, Promise<THREE.Group>>();
+
+async function getArtifactTemplate(absoluteUrl: string, logicalKey: string): Promise<THREE.Group> {
+  const cached = templateByUrl.get(absoluteUrl);
   if (cached) {
+    logGltf(`cache hit ${logicalKey}`, absoluteUrl);
     return cached;
   }
-  const gltf = await loader.loadAsync(url);
-  const root = gltf.scene as THREE.Group;
-  templateByUrl.set(url, root);
-  return root;
+
+  let pending = templateLoading.get(absoluteUrl);
+  if (!pending) {
+    logGltf(`load start`, { skillId: logicalKey, url: absoluteUrl });
+    pending = (async () => {
+      try {
+        const gltf = await loader.loadAsync(absoluteUrl);
+        const root = gltf.scene as THREE.Group;
+        root.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(root);
+        const size = box.getSize(new THREE.Vector3());
+        logGltf(`load ok`, {
+          skillId: logicalKey,
+          url: absoluteUrl,
+          empty: box.isEmpty(),
+          size: { x: size.x, y: size.y, z: size.z },
+          children: root.children.length
+        });
+        templateByUrl.set(absoluteUrl, root);
+        return root;
+      } catch (err) {
+        console.error(`[portfolio-galaxy glTF] load FAILED`, { skillId: logicalKey, url: absoluteUrl, err });
+        throw err;
+      } finally {
+        templateLoading.delete(absoluteUrl);
+      }
+    })();
+    templateLoading.set(absoluteUrl, pending);
+  } else {
+    logGltf(`await in-flight load`, { skillId: logicalKey, url: absoluteUrl });
+  }
+
+  return pending;
 }
 
 /** Deep clone for one instance: unique materials + geometries so dispose stays local. */
@@ -97,6 +145,10 @@ function tunePbr(
   mat.color.lerp(accent, tint);
   mat.emissive = accent.clone();
   mat.emissiveIntensity = baseEmissiveIntensity;
+  mat.transparent = false;
+  mat.opacity = 1;
+  mat.depthWrite = true;
+  mat.visible = true;
   return mat;
 }
 
@@ -104,6 +156,7 @@ function collectRaycastMeshes(root: THREE.Object3D, skillId: string, out: THREE.
   root.traverse((obj) => {
     if (obj instanceof THREE.Mesh) {
       obj.userData['skillNodeId'] = skillId;
+      obj.frustumCulled = true;
       out.push(obj);
     }
   });
@@ -144,7 +197,8 @@ export class SkillNodeVisual {
     skill: PortfolioSkill,
     position: THREE.Vector3,
     role: SkillVisualRole,
-    supportSlot: 0 | 1
+    supportSlot: 0 | 1,
+    sourceLabel: 'gltf' | 'fallback'
   ) {
     this.skillId = skill.id;
     this.artifact = artifact;
@@ -165,13 +219,31 @@ export class SkillNodeVisual {
 
     const accent = new THREE.Color(skill.accentHex);
 
+    this.artifact.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(this.artifact);
-    const center = box.getCenter(new THREE.Vector3());
-    this.artifact.position.sub(center);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z, 1e-4);
-    const target = isHero ? 1.86 : 1.72;
-    this.artifact.scale.setScalar(target / maxDim);
+    if (box.isEmpty()) {
+      console.warn('[portfolio-galaxy glTF] empty bounds — using default scale', {
+        skillId: skill.id,
+        source: sourceLabel
+      });
+      const fallbackScale = isHero ? 0.93 : 0.88;
+      this.artifact.scale.setScalar(fallbackScale);
+    } else {
+      const center = box.getCenter(new THREE.Vector3());
+      this.artifact.position.sub(center);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z, 1e-4);
+      const target = isHero ? 1.86 : 1.72;
+      const scale = target / maxDim;
+      this.artifact.scale.setScalar(scale);
+      logGltf('bounds / scale', {
+        skillId: skill.id,
+        source: sourceLabel,
+        maxDim,
+        scale,
+        worldPosition: position.clone()
+      });
+    }
 
     this.raycastMeshes = [];
     collectRaycastMeshes(this.artifact, skill.id, this.raycastMeshes);
@@ -202,10 +274,44 @@ export class SkillNodeVisual {
     role: SkillVisualRole = 'support',
     supportSlot: 0 | 1 = 0
   ): Promise<SkillNodeVisual> {
-    const url = resolveSkillArtifactUrl(skill);
-    const template = await getArtifactTemplate(url);
-    const artifact = cloneArtifactGraph(template);
-    return new SkillNodeVisual(artifact, skill, position, role, supportSlot);
+    const relative = resolveSkillArtifactUrl(skill);
+    const absolute = toLoaderAbsoluteUrl(relative);
+    console.info('[portfolio-galaxy glTF] resolved URL', { skillId: skill.id, relative, absolute });
+    logGltf('resolved paths (verbose)', { skillId: skill.id, relative, absolute });
+
+    try {
+      const template = await getArtifactTemplate(absolute, skill.id);
+      const artifact = cloneArtifactGraph(template);
+      return new SkillNodeVisual(artifact, skill, position, role, supportSlot, 'gltf');
+    } catch {
+      console.warn('[portfolio-galaxy glTF] using fallback mesh', skill.id);
+      return SkillNodeVisual.createFallback(skill, position, role, supportSlot);
+    }
+  }
+
+  private static createFallback(
+    skill: PortfolioSkill,
+    position: THREE.Vector3,
+    role: SkillVisualRole,
+    supportSlot: 0 | 1
+  ): SkillNodeVisual {
+    const accent = new THREE.Color(skill.accentHex);
+    const isHero = role === 'hero';
+    const geo = new THREE.IcosahedronGeometry(1, 3);
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: accent.clone().multiplyScalar(0.28),
+      emissive: accent.clone(),
+      emissiveIntensity: isHero ? 0.24 : 0.14,
+      metalness: 0.38,
+      roughness: 0.4,
+      clearcoat: 0.22,
+      clearcoatRoughness: 0.45
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = `skill-fallback-${skill.id}`;
+    const artifact = new THREE.Group();
+    artifact.add(mesh);
+    return new SkillNodeVisual(artifact, skill, position, role, supportSlot, 'fallback');
   }
 
   get raycastTargets(): THREE.Object3D[] {
@@ -290,6 +396,7 @@ export class SkillNodeVisual {
 
 /** Clears shared glTF templates (geometries/materials on templates are not disposed — keep cache small). */
 export function disposeSharedArtifactTemplates(): void {
+  templateLoading.clear();
   for (const root of templateByUrl.values()) {
     root.traverse((obj) => {
       if (obj instanceof THREE.Mesh) {

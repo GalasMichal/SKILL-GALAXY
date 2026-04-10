@@ -81,20 +81,25 @@ export class Experience {
     this.focus.setDefaultFraming(camera.position.clone(), this.controls.target.clone());
     this.raycaster = new RaycasterManager();
 
-    void this.world.loadSkillArtifacts().then(() => {
-      if (this.disposed) {
-        return;
-      }
-      this.interaction = new InteractionManager(
-        this.rendererManager.renderer.domElement,
-        camera,
-        this.raycaster!,
-        this.world.skillSystem,
-        this.focus!,
-        this.onSkillHover
-      );
-      this.interaction.start();
-    });
+    void this.world
+      .loadSkillArtifacts()
+      .then(() => {
+        if (this.disposed) {
+          return;
+        }
+        this.interaction = new InteractionManager(
+          this.rendererManager.renderer.domElement,
+          camera,
+          this.raycaster!,
+          this.world.skillSystem,
+          this.focus!,
+          this.onSkillHover
+        );
+        this.interaction.start();
+      })
+      .catch((err) => {
+        console.error('[portfolio-galaxy] skill artifact build failed', err);
+      });
 
     this.resize = new ResizeHandler(this.host, (w, h, pr) => {
       this.cameraManager.setAspect(w / h);
