@@ -10,15 +10,15 @@ export function resolveSkillArtifactUrl(skill: PortfolioSkill): string {
   }
   const id = skill.id.toLowerCase();
   if (id.includes('frontend')) {
-    return 'models/planets/planet_frontend.glb';
+    return 'models/skills/gravity.glb';
   }
   if (id.includes('backend')) {
-    return 'models/planets/planet_backend.glb';
+    return 'models/skills/mosquito.glb';
   }
   if (id.includes('creative')) {
-    return 'models/planets/planet_softskill.glb';
+    return 'models/skills/energy-core.glb';
   }
-  return 'models/planets/planet_default.glb';
+  return 'models/skills/energy-core.glb';
 }
 
 function stripLeadingSlash(path: string): string {

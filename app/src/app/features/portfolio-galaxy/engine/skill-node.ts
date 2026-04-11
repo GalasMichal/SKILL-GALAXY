@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { PortfolioSkill } from './portfolio-skill.model';
-import { buildLuxuryHeroArtifact } from './luxury-artifact-hero';
 import { resolveSkillArtifactUrl, toLoaderAbsoluteUrl } from './skill-artifact-url';
 
 export type SkillVisualRole = 'hero' | 'support';
@@ -28,6 +27,10 @@ function smoothToward(current: number, goal: number, delta: number, lambda: numb
 
 type PbrMaterial = THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial;
 
+/** Visual size in world units (max axis of centered model). Creative/hero is ~12.5% larger. */
+const SUPPORT_ARTIFACT_TARGET = 1.72;
+const HERO_ARTIFACT_SIZE_MULT = 1.125;
+
 const loader = new GLTFLoader();
 loader.setCrossOrigin('anonymous');
 
@@ -51,6 +54,13 @@ async function getArtifactTemplate(absoluteUrl: string, logicalKey: string): Pro
         root.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(root);
         const size = box.getSize(new THREE.Vector3());
+        console.info('[portfolio-galaxy glTF] loaded template bounds', {
+          skillId: logicalKey,
+          url: absoluteUrl,
+          empty: box.isEmpty(),
+          size: { x: size.x, y: size.y, z: size.z },
+          children: root.children.length
+        });
         logGltf(`load ok`, {
           skillId: logicalKey,
           url: absoluteUrl,
@@ -91,66 +101,40 @@ function cloneArtifactGraph(template: THREE.Object3D): THREE.Group {
   return root;
 }
 
-function upgradeToPbr(
-  mat: THREE.Material,
-  accent: THREE.Color,
-  role: SkillVisualRole,
-  baseEmissiveIntensity: number
-): PbrMaterial {
-  if (mat instanceof THREE.MeshBasicMaterial) {
-    const pm = new THREE.MeshPhysicalMaterial({
-      map: mat.map,
-      color: mat.color.clone(),
-      roughness: 0.42,
-      metalness: 0.22,
-      transparent: mat.transparent,
-      opacity: mat.opacity,
-      depthWrite: mat.depthWrite,
-      side: mat.side
-    });
-    mat.dispose();
-    return tunePbr(pm, accent, role, baseEmissiveIntensity);
+/**
+ * Keep glTF materials as-authored. Only nudge obvious “invisible by mistake” cases
+ * (broken opacity / depth) without retinting or swapping material types.
+ */
+function ensureMaterialVisibility(mat: THREE.Material): void {
+  mat.visible = true;
+  if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
+    const transmission = mat instanceof THREE.MeshPhysicalMaterial ? mat.transmission : 0;
+    const isGlassy = transmission > 0.08 || (mat.transparent && mat.opacity < 0.98);
+    if (!isGlassy && mat.opacity < 0.04 && !mat.transparent) {
+      mat.opacity = 1;
+    }
   }
-  if (mat instanceof THREE.MeshPhysicalMaterial) {
-    return tunePbr(mat, accent, role, baseEmissiveIntensity);
-  }
-  if (mat instanceof THREE.MeshStandardMaterial) {
-    const pm = new THREE.MeshPhysicalMaterial();
-    pm.copy(mat);
-    mat.dispose();
-    return tunePbr(pm, accent, role, baseEmissiveIntensity);
-  }
-  const fallback = new THREE.MeshPhysicalMaterial({
-    color: 0x1a1f2a,
-    roughness: 0.45,
-    metalness: 0.28
-  });
-  mat.dispose();
-  return tunePbr(fallback, accent, role, baseEmissiveIntensity);
 }
 
-function tunePbr(
-  mat: THREE.MeshPhysicalMaterial,
-  accent: THREE.Color,
-  role: SkillVisualRole,
-  baseEmissiveIntensity: number
-): THREE.MeshPhysicalMaterial {
-  mat.envMapIntensity = Math.max(0.85, mat.envMapIntensity);
-  mat.metalness = THREE.MathUtils.clamp(mat.metalness, 0.08, 0.62);
-  mat.roughness = THREE.MathUtils.clamp(mat.roughness, 0.22, 0.78);
-  if (mat.clearcoat === 0 && role === 'hero') {
-    mat.clearcoat = 0.18;
-    mat.clearcoatRoughness = 0.45;
-  }
-  const tint = role === 'hero' ? 0.11 : 0.085;
-  mat.color.lerp(accent, tint);
-  mat.emissive = accent.clone();
-  mat.emissiveIntensity = baseEmissiveIntensity;
-  mat.transparent = false;
-  mat.opacity = 1;
-  mat.depthWrite = true;
-  mat.visible = true;
-  return mat;
+function registerMaterialsForInteraction(
+  root: THREE.Object3D,
+  materialsOut: { mat: PbrMaterial; baseRoughness: number; emissiveBase: number }[]
+): void {
+  root.traverse((obj) => {
+    if (obj instanceof THREE.Mesh) {
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const m of mats) {
+        ensureMaterialVisibility(m);
+        if (m instanceof THREE.MeshStandardMaterial || m instanceof THREE.MeshPhysicalMaterial) {
+          materialsOut.push({
+            mat: m,
+            baseRoughness: m.roughness,
+            emissiveBase: m.emissiveIntensity
+          });
+        }
+      }
+    }
+  });
 }
 
 function collectRaycastMeshes(root: THREE.Object3D, skillId: string, out: THREE.Mesh[]): void {
@@ -199,7 +183,7 @@ export class SkillNodeVisual {
     position: THREE.Vector3,
     role: SkillVisualRole,
     supportSlot: 0 | 1,
-    sourceLabel: 'gltf' | 'fallback' | 'luxury-hero'
+    sourceLabel: 'gltf' | 'fallback'
   ) {
     this.skillId = skill.id;
     this.artifact = artifact;
@@ -218,8 +202,6 @@ export class SkillNodeVisual {
     this.baseEmissive = isHero ? 0.22 : 0.12;
     this.hoverEmissive = isHero ? 0.52 : 0.34;
 
-    const accent = new THREE.Color(skill.accentHex);
-
     this.artifact.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(this.artifact);
     if (box.isEmpty()) {
@@ -234,9 +216,18 @@ export class SkillNodeVisual {
       this.artifact.position.sub(center);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z, 1e-4);
-      const target = isHero ? 1.86 : 1.72;
+      const target = isHero ? SUPPORT_ARTIFACT_TARGET * HERO_ARTIFACT_SIZE_MULT : SUPPORT_ARTIFACT_TARGET;
       const scale = target / maxDim;
       this.artifact.scale.setScalar(scale);
+      console.info('[portfolio-galaxy glTF] model fitted', {
+        skillId: skill.id,
+        source: sourceLabel,
+        role: isHero ? 'hero' : 'support',
+        maxDim,
+        target,
+        scale,
+        size: { x: size.x, y: size.y, z: size.z }
+      });
       logGltf('bounds / scale', {
         skillId: skill.id,
         source: sourceLabel,
@@ -249,39 +240,7 @@ export class SkillNodeVisual {
     this.raycastMeshes = [];
     collectRaycastMeshes(this.artifact, skill.id, this.raycastMeshes);
 
-    if (sourceLabel === 'luxury-hero') {
-      this.artifact.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          for (const m of mats) {
-            if (m instanceof THREE.MeshPhysicalMaterial || m instanceof THREE.MeshStandardMaterial) {
-              this.materials.push({
-                mat: m,
-                baseRoughness: m.roughness,
-                emissiveBase: m.emissiveIntensity
-              });
-            }
-          }
-        }
-      });
-    } else {
-      this.artifact.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          const next: THREE.Material[] = [];
-          for (const m of mats) {
-            const pm = upgradeToPbr(m, accent, role, this.baseEmissive);
-            next.push(pm);
-            this.materials.push({
-              mat: pm,
-              baseRoughness: pm.roughness,
-              emissiveBase: pm.emissiveIntensity
-            });
-          }
-          obj.material = (next.length === 1 ? next[0] : next) as typeof obj.material;
-        }
-      });
-    }
+    registerMaterialsForInteraction(this.artifact, this.materials);
 
     this.group.add(this.artifact);
     this.group.userData['skillNodeId'] = skill.id;
@@ -293,15 +252,18 @@ export class SkillNodeVisual {
     role: SkillVisualRole = 'support',
     supportSlot: 0 | 1 = 0
   ): Promise<SkillNodeVisual> {
-    if (role === 'hero') {
-      const artifact = buildLuxuryHeroArtifact(skill);
-      return new SkillNodeVisual(artifact, skill, position, role, supportSlot, 'luxury-hero');
-    }
-
     const relative = resolveSkillArtifactUrl(skill);
     const absolute = toLoaderAbsoluteUrl(relative);
-    console.info('[portfolio-galaxy glTF] resolved URL', { skillId: skill.id, relative, absolute });
-    logGltf('resolved paths (verbose)', { skillId: skill.id, relative, absolute });
+    const baseHref =
+      typeof document !== 'undefined' ? document.querySelector('base')?.getAttribute('href') ?? '/' : '/';
+    console.info('[portfolio-galaxy glTF] resolved URL', {
+      skillId: skill.id,
+      relative,
+      absolute,
+      baseHref,
+      origin: typeof window !== 'undefined' ? window.location.origin : '(ssr)'
+    });
+    logGltf('resolved paths (verbose)', { skillId: skill.id, relative, absolute, baseHref });
 
     try {
       const template = await getArtifactTemplate(absolute, skill.id);
